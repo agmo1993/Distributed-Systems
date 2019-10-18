@@ -3,7 +3,11 @@ package server;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.io.IOException; 
-import java.util.Properties; 
+import java.util.Properties;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import java.rmi.Naming; 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -131,7 +135,11 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			//RMIMediatorImpl mediatorobj = new RMIMediatorImpl();
 			//mediatorobj.main(argv);
 			//WhiteboardUser w = new WhiteboardUser ("ClientWhiteboard 1",col,"host","TheMediator");
-			ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("WB Client 1", col, "host","TheMediator");
+			JFrame frame = new JFrame();
+		    String result = JOptionPane.showInputDialog(frame, "Please enter your username to connect to canvas");
+//		    String clientName = result;
+
+			ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(result, col, "host","TheMediator");
 			//ThreadedWhiteboardUser tobj1 = new ThreadedWhiteboardUser("WB Client 2", col2, "host","TheMediator");
 			/*
 			 * 

@@ -5,10 +5,17 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
+import java.awt.Image;
+
 import javax.swing.JMenuBar;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+
 import java.awt.Component;
+
+import javax.imageio.ImageIO;
 import javax.swing.Box;
 import java.awt.TextArea;
 import javax.swing.BoxLayout;
@@ -58,6 +65,7 @@ public class WhiteBoardInterface {
 	private JButton btnEraser;
 	private JButton btnColor;
 	private JButton btnClear;
+	private JButton btnNewButton;
 
 	/**
 	 * Launch the application.
@@ -217,7 +225,10 @@ public class WhiteBoardInterface {
 		
 		JButton btnBrush = new JButton("Brush");
 		
+//		Icon warnIcon = new ImageIcon("Line.bmp");
 		JButton btnLine = new JButton("Line");
+//		btnLine.setText("Line");
+//		
 		
 		JComboBox comboBoxSize = new JComboBox();
 		
@@ -238,25 +249,32 @@ public class WhiteBoardInterface {
 		btnColor = new JButton("Color");
 		
 		btnClear = new JButton("Clear");
+		
+		btnNewButton = new JButton("Text");
+		
+		JTextArea textArea = new JTextArea();
+		textArea.setLineWrap(true);
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
-			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
+			gl_tools_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_tools_panel.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(btnBrush, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(btnOval, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-						.addComponent(comboBoxSize, Alignment.TRAILING, 0, 68, Short.MAX_VALUE)
-						.addComponent(btnSelSize, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(separator_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(btnRectangle, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnEraser, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnLine, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-						.addComponent(btnColor, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE))
+						.addComponent(btnLine, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnRectangle, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnBrush, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(comboBoxSize, Alignment.TRAILING, 0, 88, Short.MAX_VALUE)
+						.addComponent(btnSelSize, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(separator_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnEraser, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnOval, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnClear, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(btnColor, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(separator_4, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
+						.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		gl_tools_panel.setVerticalGroup(
@@ -279,14 +297,18 @@ public class WhiteBoardInterface {
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnOval, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnLine)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnLine, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btnNewButton)
+					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+					.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(separator_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnColor)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnClear)
-					.addPreferredGap(ComponentPlacement.RELATED, 178, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(108))
 		);

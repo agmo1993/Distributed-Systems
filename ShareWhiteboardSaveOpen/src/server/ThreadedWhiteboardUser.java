@@ -86,6 +86,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JButton btnEraser;
 	protected JButton btnColor;
 	protected JButton btnClear;
+	protected JButton btnText;
+	private JTextField textField_1;
+	private JTextArea textArea;
+
 	
 	
 	
@@ -110,7 +114,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
   	DrawArea1 drawArea;
 	private String[] brushSizeList = {"1","2","3","4","5","6","8","10","12","14","16","20","24","32","48"};
 	private int brushSize = 1;
-	Boolean freeHandState = true, lineState = false, rectState = false, circleState = false, ovalState = false;
+	Boolean freeHandState = true, lineState = false, rectState = false, circleState = false, ovalState = false, textState = false;
 	
 	BufferedImage biOpen;
 	
@@ -118,6 +122,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	BufferedImage bi;
 	Container content;
 	File selectedFile = null;
+	private String textInput;
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
@@ -143,8 +148,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	      		drawArea.circle();
 	      	} else if (e.getSource() == btnOval) {
 	      		drawArea.oval();
-	      	} else if (e.getSource() == btnEraser) {
-	      		drawArea.erase();
+	      	} else if (e.getSource() == btnText) {
+	      		drawArea.text();
+	      	}else if (e.getSource() == btnEraser) {
+		      		drawArea.erase();
 	      	} else if (e.getSource() == mntmNew) {
 	      		drawArea.newCanvas();
 	      	} else if (e.getSource() == mntmSave) {
@@ -234,6 +241,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		mntmClose = new JMenuItem("Close");
 		mnFile.add(mntmClose);
 		mntmClose.addActionListener(actionListener);
+		
 		
 		//Status panel Creation
 		JPanel status_panel = new JPanel();
@@ -330,6 +338,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnBrush = new JButton("Brush");
 		btnBrush.addActionListener(actionListener);
 		btnLine = new JButton("Line");
+			
 		btnLine.addActionListener(actionListener);
 		comboBoxSize = new JComboBox<String>(brushSizeList);
 		comboBoxSize.addActionListener (actionListener);
@@ -349,26 +358,33 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnColor.addActionListener(actionListener);
 		btnClear = new JButton("Clear");
 		btnClear.addActionListener(actionListener);
+		btnText = new JButton("Text");
+		btnText.addActionListener(actionListener);
+//		textField_1 = new JTextField();
+//		textField_1.setColumns(10);
 		
-				
+		textArea = new JTextArea();		
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_tools_panel.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-							.addComponent(btnBrush, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-							.addComponent(comboBoxSize, Alignment.TRAILING, 0, 68, Short.MAX_VALUE)
-							.addComponent(btnEraser, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-							.addComponent(btnOval, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-							.addComponent(separator_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-							.addComponent(btnRectangle, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnLine, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-							.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-							.addComponent(btnColor, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
-							.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
+							.addComponent(btnBrush, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(comboBoxSize, Alignment.TRAILING, 0, 80, Short.MAX_VALUE)
+							.addComponent(btnEraser, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(btnOval, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addComponent(separator_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(btnRectangle, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btnLine, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(btnText, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+//							.addComponent(textField_1, GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE)
+							.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(btnColor, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 80, Short.MAX_VALUE)
+							.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		gl_tools_panel.setVerticalGroup(
@@ -391,12 +407,18 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnLine)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnText, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+//					.addComponent(textField_1, GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
+//					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(separator_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnColor)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnClear)
-					.addPreferredGap(ComponentPlacement.RELATED, 178, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED, 93, Short.MAX_VALUE)
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(108))
 		);
@@ -717,7 +739,37 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        isSaved = false;
 					        isNew = false;
 					        try {
-								broadcastPaint("circle",col,e, oldX,oldY);
+								broadcastPaint("oval",col,e, oldX,oldY);
+								System.out.println("Painting broadcasted");
+							} catch (IOException e1) {
+								System.out.println("Error");
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+				        	
+				        } 
+			    	  else if((freeHandState == false) & (textState == true)){
+//			    		  if (col == Color.WHITE){
+//			    			  col = Color.BLACK;
+//			    		  }
+				        	g2.setPaint(col);
+//					        g2.drawOval(oldX, oldY, shapeWidth, shapeHeight);
+//				        	if(brushSize < 8) {
+//				        		brushSize = 8;
+//				        	}
+//				        	int fontSize = shapeWidth;
+//				        	JFrame frame = new JFrame();
+//				        	Object result = JOptionPane.showInputDialog(frame, "Enter printer name:");
+				        	Font font = new Font("Serif", Font.PLAIN, shapeWidth);
+				        	 
+				        	g2.setFont(font);
+					        g2.drawString(textArea.getText(), oldX, oldY);
+//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
+					        repaint();
+					        isSaved = false;
+					        isNew = false;
+					        try {
+								broadcastPaint(textArea.getText(),col,e, oldX,oldY);
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
 								System.out.println("Error");
@@ -747,12 +799,13 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  // now we create exposed methods
 		  public void clear() {
 			  col = Color.BLACK;
-			  freeHandState = true;
+//			  freeHandState = true;
 			  freeHandState = true;
 			  lineState = false;
 			  rectState = false;
 			  circleState = false;
 			  ovalState = false;
+			  textState = false;
 			  g2.setPaint(Color.white);
 			  g2.fillRect(0, 0, getSize().width, getSize().height);
 			  g2.setPaint(Color.black);
@@ -785,6 +838,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = false;
 			    ovalState = false;
+			    textState = true;
 		  }
 		 
 		  public void line() {
@@ -797,6 +851,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = false;
 			    ovalState = false;
+			    textState = true;
 //			    col = Color.BLACK;
 		  }
 		 
@@ -809,6 +864,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = true;
 			    circleState = false;
 			    ovalState = false;
+			    textState = true;
 		  }
 		  
 		  public void circle() {
@@ -820,6 +876,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = true;
 			    ovalState = false;
+			    textState = true;
 		  }
 		  
 		  public void oval() {
@@ -831,6 +888,19 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = false;
 			    ovalState = true;
+			    textState = true;
+		  }
+		  
+		  public void text() {
+			  if (col == Color.WHITE){
+				  col = Color.BLACK;
+			  }
+			  	freeHandState = false;
+			    lineState = false;
+			    rectState = false;
+			    circleState = false;
+			    ovalState = false;
+			    textState = true;
 		  }
 		  
 		  public void erase() {
