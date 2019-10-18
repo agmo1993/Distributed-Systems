@@ -126,7 +126,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
   	DrawArea1 drawArea;
 	private String[] brushSizeList = {"1","2","3","4","5","6","8","10","12","14","16","20","24","32","48"};
 	private int brushSize = 1;
-	Boolean freeHandState = true, lineState = false, rectState = false, circleState = false, ovalState = false;
+	Boolean freeHandState = true, lineState = false, rectState = false, circleState = false, ovalState = false, textState = false;
 	
 	BufferedImage biOpen;
 	
@@ -161,6 +161,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	      		drawArea.oval();
 	      	} else if (e.getSource() == btnEraser) {
 	      		drawArea.erase();
+	      	} else if (e.getSource() == btnText) {
+	      		drawArea.text();
 	      	} else if (e.getSource() == mntmNew) {
 	      		drawArea.newCanvas();
 	      	} else if (e.getSource() == mntmSave) {
@@ -418,6 +420,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		
 		btnText = new JButton("");
 		btnText.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-type-32.png")));
+		btnText.addActionListener(actionListener);
 		textField_inputCanvas = new JTextField();
 		textField_inputCanvas.setColumns(10);
 		
@@ -882,7 +885,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        isSaved = false;
 					        isNew = false;
 					        try {
-								broadcastPaint("circle",col,e, oldX,oldY);
+								broadcastPaint("oval",col,e, oldX,oldY);
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
 								System.out.println("Error");
@@ -890,7 +893,37 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								e1.printStackTrace();
 							}
 				        	
-				        } 
+				        }
+			    	  else if((freeHandState == false) & (textState == true)){
+//			    		  if (col == Color.WHITE){
+//			    			  col = Color.BLACK;
+//			    		  }
+				        	g2.setPaint(col);
+//					        g2.drawOval(oldX, oldY, shapeWidth, shapeHeight);
+//				        	if(brushSize < 8) {
+//				        		brushSize = 8;
+//				        	}
+//				        	int fontSize = shapeWidth;
+//				        	JFrame frame = new JFrame();
+//				        	Object result = JOptionPane.showInputDialog(frame, "Enter printer name:");
+				        	Font font = new Font("Serif", Font.PLAIN, shapeWidth);
+				        	 
+				        	g2.setFont(font);
+					        g2.drawString(textField_inputCanvas.getText(), oldX, oldY);
+//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
+					        repaint();
+					        isSaved = false;
+					        isNew = false;
+					        try {
+								broadcastPaint(textField_inputCanvas.getText(),col,e, oldX,oldY);
+								System.out.println("Painting broadcasted");
+							} catch (IOException e1) {
+								System.out.println("Error");
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+				        	
+				        }
 			      }
 			});
 		  }
@@ -997,6 +1030,17 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = false;
 			    ovalState = true;
+		  }
+		  public void text() {
+			  if (col == Color.WHITE){
+				  col = Color.BLACK;
+			  }
+			  	freeHandState = false;
+			    lineState = false;
+			    rectState = false;
+			    circleState = false;
+			    ovalState = false;
+			    textState = true;
 		  }
 		  
 		  public void erase() {
@@ -1203,6 +1247,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  int yPos = e.getY();
 			  System.out.println("Painting from remote");
 			  if (shape.equals("line")){
+				  line();
 				  g2.setPaint(col);
 			      g2.drawLine(oldX, oldY, xPos, yPos);
 			      repaint();
@@ -1210,7 +1255,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isNew = false;
 
 			  }
-			  else if (shape.equals("circle")){
+			  else if (shape.equals("oval")){
+				  oval();
 				  g2.setPaint(col);
 			      g2.drawOval(oldX, oldY, xPos, yPos);
 			      repaint();
@@ -1218,6 +1264,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isNew = false;
 			  }
 			  else if (shape.equals("circle")){
+				  circle();
 				  g2.setPaint(col);
 			      g2.drawOval(oldX, oldY, xPos, yPos);
 			      repaint();
@@ -1225,6 +1272,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isNew = false;
 			  }
 			  else if (shape.equals("rectangle")){
+				  rectangle();
+				  g2.setPaint(col);
+			      g2.drawRect(oldX, oldY, xPos, yPos);
+			      repaint();
+			      isSaved = false;
+			      isNew = false;
+			  }
+			  else if (shape.equals("text")){
+				  text();
 				  g2.setPaint(col);
 			      g2.drawRect(oldX, oldY, xPos, yPos);
 			      repaint();
