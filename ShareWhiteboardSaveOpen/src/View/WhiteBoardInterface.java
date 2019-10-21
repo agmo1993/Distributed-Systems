@@ -148,6 +148,7 @@ public class WhiteBoardInterface {
 		status_panel.add(status);
 		
 		canvas_panel = new JPanel();
+		canvas_panel.setBackground(Color.WHITE);
 		
 		JPanel tools_panel = new JPanel();
 		tools_panel.setBackground(new Color(112, 128, 144));
@@ -165,8 +166,8 @@ public class WhiteBoardInterface {
 						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(tools_panel, GroupLayout.PREFERRED_SIZE, 106, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(canvas_panel, GroupLayout.DEFAULT_SIZE, 1010, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+							.addComponent(canvas_panel, GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
 								.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(secondary_panel, GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)))
@@ -177,13 +178,13 @@ public class WhiteBoardInterface {
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(canvas_panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 867, Short.MAX_VALUE)
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(secondary_panel, GroupLayout.PREFERRED_SIZE, 625, GroupLayout.PREFERRED_SIZE))
-						.addComponent(tools_panel, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+						.addComponent(tools_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(canvas_panel, GroupLayout.DEFAULT_SIZE, 880, Short.MAX_VALUE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(status_panel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
@@ -201,13 +202,11 @@ public class WhiteBoardInterface {
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_users_panel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_users_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 347, Short.MAX_VALUE)
-						.addGroup(gl_users_panel.createSequentialGroup()
-							.addComponent(lblUsersConected)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(lblUsers)
-							.addContainerGap(216, Short.MAX_VALUE))))
+					.addComponent(lblUsersConected)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblUsers)
+					.addContainerGap(216, Short.MAX_VALUE))
+				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
 		);
 		gl_users_panel.setVerticalGroup(
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
@@ -229,6 +228,7 @@ public class WhiteBoardInterface {
 		textField.setColumns(10);
 		
 		JButton btnSend = new JButton("Send");
+		btnSend.setFont(new Font("Segoe UI Light", Font.PLAIN, 15));
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
@@ -236,24 +236,24 @@ public class WhiteBoardInterface {
 		GroupLayout gl_secondary_panel = new GroupLayout(secondary_panel);
 		gl_secondary_panel.setHorizontalGroup(
 			gl_secondary_panel.createParallelGroup(Alignment.LEADING)
+				.addComponent(chatArea, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
 				.addGroup(gl_secondary_panel.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
-						.addGroup(Alignment.TRAILING, gl_secondary_panel.createSequentialGroup()
-							.addComponent(textField, GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE))))
+					.addComponent(textField, GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
 		);
 		gl_secondary_panel.setVerticalGroup(
 			gl_secondary_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_secondary_panel.createSequentialGroup()
 					.addGap(7)
 					.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-						.addComponent(textField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(textField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
 		);
 		secondary_panel.setLayout(gl_secondary_panel);
 		
@@ -350,6 +350,8 @@ public class WhiteBoardInterface {
 		btnColor10 = new JButton("");
 		btnColor10.setOpaque(false);
 		btnColor10.setBackground(Color.CYAN);
+		
+		JButton btnNewButton = new JButton("New button");
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.LEADING)
@@ -403,6 +405,10 @@ public class WhiteBoardInterface {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap(23, Short.MAX_VALUE))
+				.addGroup(gl_tools_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(25, Short.MAX_VALUE))
 		);
 		gl_tools_panel.setVerticalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
@@ -457,7 +463,9 @@ public class WhiteBoardInterface {
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-					.addGap(55))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnNewButton)
+					.addGap(17))
 		);
 		tools_panel.setLayout(gl_tools_panel);
 		frmSharedWhitboard.getContentPane().setLayout(groupLayout);

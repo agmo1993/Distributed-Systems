@@ -8,6 +8,10 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import remote.Identity;
+import remote.RMICollaborator;
+import remote.RMIMediator;
+
 import java.rmi.Naming; 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -43,6 +47,8 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			try {        
 				//String url = "rmi://" + host + "/" + mName;        
 				//System.out.println("looking up " + url);
+								
+				//Registry registry = LocateRegistry.getRegistry("192.168.0.119", 1099);
 				Registry registry = LocateRegistry.getRegistry();
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
@@ -96,10 +102,10 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return success;  
 	}
 	
-	public boolean broadcastPaint(String shape, Color col, MouseEvent e, int X, int Y) throws RemoteException, IOException {
+	public boolean broadcastPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) throws RemoteException, IOException {
 		boolean success = false;    
 		if (mediator != null) {      
-			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y);    
+			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y, brushSize);    
 			System.out.println("Sent to mediator");
 			}
 		
@@ -125,10 +131,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		try {      
 			Properties props = new Properties();      
 			Color col = Color.black; 
-			JFrame frame = new JFrame();
-		    String result = JOptionPane.showInputDialog(frame, "Please enter your username to connect to canvas");
-		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(result, col, "host","TheMediator");
-		    //ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("WB Client 1", col, "host","TheMediator");   
+		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("User 1", col, "host","TheMediator");
 			
 		}
 		catch (Exception e) {      
