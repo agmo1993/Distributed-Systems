@@ -85,7 +85,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected JButton btnFreeDraw;
 	protected JButton btnLine;
-	protected JComboBox comboBoxSize;
+	protected JComboBox <String>comboBoxSize;
 	protected JButton btnSelSize;
 	protected JButton btnCircle;
 	protected JButton btnRectangle;
@@ -148,7 +148,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		public void actionPerformed(ActionEvent e) {
 	      	if (e.getSource() == btnClear) {
 	      		drawArea.clear();
-	      	} else if (e.getSource() == btnNewButton) {
+	      	} else if (e.getSource() == comboBoxSize) {
 	      		drawArea.setBrushSize();
 	      	} else if (e.getSource() == btnMoreColor) {
 	      		drawArea.colorChooser();
@@ -393,7 +393,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnLine.addActionListener(actionListener);
 		
 		comboBoxSize = new JComboBox<String>(brushSizeList);
-		comboBoxSize.setFont(new Font("Segoe UI Light", Font.BOLD, 16));
+		comboBoxSize.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
 		comboBoxSize.addActionListener (actionListener);
 		
 		btnCircle = new JButton("");
@@ -461,7 +461,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblCurrentColor.setBackground(col);
 		
 		btnNewButton = new JButton("Test");
-		btnNewButton.addActionListener(actionListener);
 
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
@@ -711,9 +710,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	public void mouseClicked(MouseEvent ev) {}
 	public void mouseEntered(MouseEvent ev) {}
 	
-	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y) {
+	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int remoteBrushSize) {
 		boolean success = false;
-		success = drawArea.remotePaint(shape, col, e, X, Y, brushSize);
+		success = drawArea.remotePaint(shape, col, e, X, Y, remoteBrushSize);
 		return success;
 	}
 	
@@ -795,7 +794,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		          isNew = false;
 		          isSaved = false;
 		          try {
-						broadcastPaint("line",col,e,oldX,oldY, brushSize);
+						broadcastPaint("freeHand",col,e,oldX,oldY, brushSize);
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -970,7 +969,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		 
 		  public void setBrushSize() {
 			  brushSize = Integer.parseInt((String) comboBoxSize.getSelectedItem());
-			  //brushSize = (int) comboBoxSize.getSelectedItem();
 			  g2.setStroke(new BasicStroke(brushSize));
 			  currentBrushsize = brushSize;			  
 		  }
@@ -1263,6 +1261,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
+			  }else if(shape.equals("freeHand")) {				  
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
+				  brush();
+				  g2.setPaint(col);
+			      g2.drawLine(oldX, oldY, xPos, yPos);
+			      repaint();
+			      isSaved = false;
+			      isNew = false;
 			  }
 			  else if (shape.equals("oval")){
 				  g2.setStroke(new BasicStroke(remoteBrushSize));
@@ -1277,7 +1283,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				  g2.setStroke(new BasicStroke(remoteBrushSize));
 				  circle();
 				  g2.setPaint(col);
-			      g2.drawOval(oldX, oldY, xPos, yPos);
+			      g2.drawOval(oldX, oldY, xPos, xPos);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
@@ -1301,7 +1307,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  }
 			  g2.setStroke(new BasicStroke(currentBrushsize));
 			  return true;
-			  
 			  
 		  }
 		  

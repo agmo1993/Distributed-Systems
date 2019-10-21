@@ -19,6 +19,6 @@ public boolean broadcast(String tag, Object data)throws IOException, RemoteExcep
   // Incoming messages/data  
 public boolean notify(String tag, String msg, Identity src)throws IOException, RemoteException;  
 public boolean notify(String tag, Object data, Identity src)throws IOException, RemoteException;
-public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y)throws IOException, RemoteException; 
+public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException; 
 
 }

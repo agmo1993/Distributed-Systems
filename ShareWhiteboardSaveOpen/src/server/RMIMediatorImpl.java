@@ -163,7 +163,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  }      
 		  synchronized (target) {
 			  if (!(target.getIdentity().equals(from))) {
-				  if (target == null ||!target.notifyPaint(shape, col, e, X, Y)) {
+				  if (target == null ||!target.notifyPaint(shape, col, e, X, Y, brushSize)) {
 					  success = false;        
 					  System.out.print(success);
 					  }      

@@ -112,7 +112,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return success;  
 	}
 	
-	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y) {
+	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) {
 		System.out.println("Got message to Paint");    
 		return true;  
 	}

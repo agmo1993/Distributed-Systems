@@ -107,6 +107,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JButton btnColor9;
 	protected JButton btnColor10;
 	protected JLabel lblCurrentColor;
+	protected JButton btnNewButton;
 	
 	//***********************
 	
@@ -147,7 +148,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		public void actionPerformed(ActionEvent e) {
 	      	if (e.getSource() == btnClear) {
 	      		drawArea.clear();
-	      	} else if (e.getSource() == comboBoxSize) {
+	      	} else if (e.getSource() == btnNewButton) {
 	      		drawArea.setBrushSize();
 	      	} else if (e.getSource() == btnMoreColor) {
 	      		drawArea.colorChooser();
@@ -391,7 +392,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnLine.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-line-32.png")));
 		btnLine.addActionListener(actionListener);
 		
-		comboBoxSize = new JComboBox(brushSizeList);
+		comboBoxSize = new JComboBox<String>(brushSizeList);
 		comboBoxSize.setFont(new Font("Segoe UI Light", Font.BOLD, 16));
 		comboBoxSize.addActionListener (actionListener);
 		
@@ -458,6 +459,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblCurrentColor = new JLabel("");
 		lblCurrentColor.setOpaque(true);
 		lblCurrentColor.setBackground(col);
+		
+		btnNewButton = new JButton("Test");
+		btnNewButton.addActionListener(actionListener);
 
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
@@ -512,6 +516,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap(23, Short.MAX_VALUE))
+				.addGroup(gl_tools_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(25, Short.MAX_VALUE))
 		);
 		gl_tools_panel.setVerticalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
@@ -566,7 +574,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-					.addGap(55))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnNewButton)
+					.addGap(17))
 		);
 		tools_panel.setLayout(gl_tools_panel);
 		frmSharedWhitboard.getContentPane().setLayout(groupLayout);
@@ -701,9 +711,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	public void mouseClicked(MouseEvent ev) {}
 	public void mouseEntered(MouseEvent ev) {}
 	
-	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y) {
+	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int remoteBrushSize) {
 		boolean success = false;
-		success = drawArea.remotePaint(shape, col, e, X, Y, brushSize);
+		success = drawArea.remotePaint(shape, col, e, X, Y, remoteBrushSize);
 		return success;
 	}
 	
@@ -785,7 +795,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		          isNew = false;
 		          isSaved = false;
 		          try {
-						broadcastPaint("line",col,e,oldX,oldY, brushSize);
+						broadcastPaint("freeHand",col,e,oldX,oldY, brushSize);
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -960,6 +970,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		 
 		  public void setBrushSize() {
 			  brushSize = Integer.parseInt((String) comboBoxSize.getSelectedItem());
+			  //brushSize = (int) comboBoxSize.getSelectedItem();
 			  g2.setStroke(new BasicStroke(brushSize));
 			  currentBrushsize = brushSize;			  
 		  }
@@ -1237,24 +1248,32 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  }
 		  }
 		  
-		  public boolean remotePaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) {
+		  public boolean remotePaint(String shape, Color col, MouseEvent e, int X, int Y, int remoteBrushSize) {
 			  int oldX = X;
 			  int oldY = Y;
 			  int xPos = e.getX();
 			  int yPos = e.getY();
 			  int temp = this.currentBrushsize;
-			  g2.setStroke(new BasicStroke(brushSize));
 			  System.out.println("Painting from remote");
 			  if (shape.equals("line")){
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
 				  line();
 				  g2.setPaint(col);
 			      g2.drawLine(oldX, oldY, xPos, yPos);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
-
+			  }else if(shape.equals("freeHand")) {				  
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
+				  brush();
+				  g2.setPaint(col);
+			      g2.drawLine(oldX, oldY, xPos, yPos);
+			      repaint();
+			      isSaved = false;
+			      isNew = false;
 			  }
 			  else if (shape.equals("oval")){
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
 				  oval();
 				  g2.setPaint(col);
 			      g2.drawOval(oldX, oldY, xPos, yPos);
@@ -1263,14 +1282,16 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isNew = false;
 			  }
 			  else if (shape.equals("circle")){
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
 				  circle();
 				  g2.setPaint(col);
-			      g2.drawOval(oldX, oldY, xPos, yPos);
+			      g2.drawOval(oldX, oldY, xPos, xPos);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
 			  }
 			  else if (shape.equals("rectangle")){
+				  g2.setStroke(new BasicStroke(remoteBrushSize));
 				  rectangle();
 				  g2.setPaint(col);
 			      g2.drawRect(oldX, oldY, xPos, yPos);
@@ -1288,7 +1309,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  }
 			  g2.setStroke(new BasicStroke(currentBrushsize));
 			  return true;
-			  
 			  
 		  }
 		  
