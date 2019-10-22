@@ -72,6 +72,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JSeparator separator_5;
 	protected JPanel canvas_panel;
 	protected JPanel secondary_panel;
+	protected JPanel status_panel;
 	protected JPanel tools_panel;
 	protected JPanel users_panel;
 	protected JLabel lblUsersConected;
@@ -80,7 +81,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 
 	protected JTextField textField;
 	protected JButton btnSend;
-	protected JTextArea logArea;
 	protected JTextArea chatArea;
 	
 	protected JButton btnFreeDraw;
@@ -107,7 +107,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JButton btnColor9;
 	protected JButton btnColor10;
 	protected JLabel lblCurrentColor;
-	protected JButton btnNewButton;
+	protected JLabel lbl_status;
+	protected JLabel lbl_chat;
 	
 	//***********************
 	
@@ -176,7 +177,28 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	      		drawArea.openCanvas();
 	      	} else if (e.getSource() == mntmClose) {
 	      		drawArea.closeCanvas();
+	      	} else if (e.getSource() == btnColor1) {
+	      		drawArea.colorChooser(btnColor1.getBackground());
+	      	} else if (e.getSource() == btnColor2) {
+	      		drawArea.colorChooser(btnColor2.getBackground());
+	      	} else if (e.getSource() == btnColor3) {
+	      		drawArea.colorChooser(btnColor3.getBackground());
+	      	} else if (e.getSource() == btnColor4) {
+	      		drawArea.colorChooser(btnColor4.getBackground());
+	      	} else if (e.getSource() == btnColor5) {
+	      		drawArea.colorChooser(btnColor5.getBackground());
+	      	} else if (e.getSource() == btnColor6) {
+	      		drawArea.colorChooser(btnColor6.getBackground());
+	      	} else if (e.getSource() == btnColor7) {
+	      		drawArea.colorChooser(btnColor7.getBackground());
+	      	} else if (e.getSource() == btnColor8) {
+	      		drawArea.colorChooser(btnColor8.getBackground());
+	      	} else if (e.getSource() == btnColor9) {
+	      		drawArea.colorChooser(btnColor9.getBackground());
+	      	} else if (e.getSource() == btnColor10) {
+	      		drawArea.colorChooser(btnColor10.getBackground());
 	      	} 
+	      	
 	    }
 	  };
 	  
@@ -228,35 +250,35 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		frmSharedWhitboard.setTitle("Shared Whiteboard");
 		frmSharedWhitboard.setIconImage(Toolkit.getDefaultToolkit().getImage(WhiteBoardInterface.class.getResource("/View/icons8-paint-palette-32.png")));
 		frmSharedWhitboard.setBounds(100, 100, 1526, 998);
+		frmSharedWhitboard.getContentPane().setBackground(new Color(12,92,117));
 		//frmSharedWhitboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSharedWhitboard.addWindowListener(windowListener);
-		
 		
 		//File menu creation
 		menuBar = new JMenuBar();
 		frmSharedWhitboard.setJMenuBar(menuBar);
 		
 		mnFile = new JMenu("File");
-		mnFile.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mnFile.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		menuBar.add(mnFile);
 		
 		mntmNew = new JMenuItem("New");
-		mntmNew.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mntmNew.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmNew);
 		mntmNew.addActionListener(actionListener);
 		
 		mntmOpen = new JMenuItem("Open");
-		mntmOpen.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mntmOpen.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmOpen);
 		mntmOpen.addActionListener(actionListener);
 		
 		mntmSave = new JMenuItem("Save");
-		mntmSave.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mntmSave.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSave);
 		mntmSave.addActionListener(actionListener);
 		
 		mntmSaveAs = new JMenuItem("Save As...");
-		mntmSaveAs.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mntmSaveAs.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSaveAs);
 		mntmSaveAs.addActionListener(actionListener);
 		
@@ -264,23 +286,36 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		mnFile.add(separator);
 		
 		mntmClose = new JMenuItem("Close");
-		mntmClose.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		mntmClose.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmClose);
 		mntmClose.addActionListener(actionListener);
 		
-		//Status panel Creation
-		JPanel status_panel = new JPanel();
+		//Get user name
+		String name = null;
+		try {
+			name = getIdentity().getName();
+		}catch (Exception e) {
+			name = "Unknown";
+		}
+		//Status panel creation
+		status_panel = new JPanel();
 		status_panel.setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY), new EmptyBorder(4, 4, 4, 4)));
-		final JLabel status;
 		
+		lbl_status = new JLabel("Welcome " + name);
+		lbl_status.setHorizontalAlignment(SwingConstants.CENTER);
+		status_panel.add(lbl_status);
 		
+		//Other panels
 		canvas_panel = new JPanel();
 		tools_panel = new JPanel();
-		tools_panel.setBackground(new Color(112, 128, 144));
+		tools_panel.setBackground(Color.WHITE);
 		users_panel = new JPanel();
+		users_panel.setBackground(new Color(24,154,167));
 		secondary_panel = new JPanel();
+		secondary_panel.setBackground(new Color(24,154,167));
 		drawArea = new DrawArea1();
-		drawArea.setLayout(new BorderLayout(0, 0));
+		drawArea.setBackground(Color.WHITE);
+		//drawArea.setLayout(new BorderLayout(0, 0));
 		
 		separator_1 = new JSeparator();
 		separator_2 = new JSeparator();
@@ -296,8 +331,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(tools_panel, GroupLayout.PREFERRED_SIZE, 106, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(drawArea, GroupLayout.DEFAULT_SIZE, 1000, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(drawArea, GroupLayout.DEFAULT_SIZE, 976, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
 								.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -310,22 +345,24 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addComponent(drawArea, GroupLayout.DEFAULT_SIZE, 867, Short.MAX_VALUE)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+							.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(secondary_panel, GroupLayout.PREFERRED_SIZE, 625, GroupLayout.PREFERRED_SIZE))
-						.addComponent(tools_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addComponent(drawArea, GroupLayout.DEFAULT_SIZE, 880, Short.MAX_VALUE))
+						.addComponent(tools_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(status_panel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
 		);
 		
 		lblUsersConected = new JLabel("Users conected:");
-		lblUsersConected.setFont(new Font("Segoe UI Light", Font.PLAIN, 15));
+		lblUsersConected.setForeground(Color.WHITE);
+		lblUsersConected.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 
 		lblUsers = new JLabel("X");
-		lblUsers.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		lblUsers.setForeground(Color.WHITE);
+		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
 		list_client = new JList();
 		
@@ -335,47 +372,59 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				.addGroup(gl_users_panel.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(lblUsersConected)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGap(13)
 					.addComponent(lblUsers)
-					.addContainerGap(216, Short.MAX_VALUE))
-				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+					.addContainerGap(221, Short.MAX_VALUE))
+				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 		);
 		gl_users_panel.setVerticalGroup(
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_users_panel.createSequentialGroup()
+					.addContainerGap()
 					.addGroup(gl_users_panel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblUsers)
-						.addComponent(lblUsersConected))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE))
+						.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))
 		);
 		users_panel.setLayout(gl_users_panel);
+		drawArea.setLayout(new BorderLayout(0, 0));
 				
 		chatArea = new JTextArea();
-		chatArea.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		chatArea.setFont(new Font("Arial Unicode MS", Font.PLAIN, 13));
 		chatArea.setEditable(false);
 				
 		textField = new JTextField();
 		textField.setColumns(10);
 		btnSend = new JButton("Send");
-		btnSend.setFont(new Font("Segoe UI Light", Font.PLAIN, 15));
+		btnSend.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
+		
+		lbl_chat = new JLabel("Chat");
+		lbl_chat.setForeground(Color.WHITE);
+		lbl_chat.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		
 		GroupLayout gl_secondary_panel = new GroupLayout(secondary_panel);
 		gl_secondary_panel.setHorizontalGroup(
 			gl_secondary_panel.createParallelGroup(Alignment.LEADING)
-				.addComponent(chatArea, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
 				.addGroup(gl_secondary_panel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(textField, GroupLayout.DEFAULT_SIZE, 268, Short.MAX_VALUE)
+					.addComponent(textField, GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap())
+				.addComponent(chatArea, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+				.addGroup(gl_secondary_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lbl_chat, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(261, Short.MAX_VALUE))
 		);
 		gl_secondary_panel.setVerticalGroup(
 			gl_secondary_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_secondary_panel.createSequentialGroup()
-					.addGap(7)
-					.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+					.addGap(12)
+					.addComponent(lbl_chat, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.LEADING)
 						.addComponent(textField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
@@ -393,7 +442,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnLine.addActionListener(actionListener);
 		
 		comboBoxSize = new JComboBox<String>(brushSizeList);
-		comboBoxSize.setFont(new Font("Segoe UI Light", Font.BOLD, 15));
+		comboBoxSize.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		comboBoxSize.addActionListener (actionListener);
 		
 		btnCircle = new JButton("");
@@ -417,7 +466,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnMoreColor.addActionListener(actionListener);
 		
 		btnClear = new JButton("Clear");
-		btnClear.setFont(new Font("Segoe UI Light", Font.BOLD, 13));
+		btnClear.setFont(new Font("Arial Unicode MS", Font.PLAIN, 16));
 		btnClear.addActionListener(actionListener);
 		
 		btnText = new JButton("");
@@ -428,97 +477,110 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		
 		btnColor1 = new JButton("");
 		btnColor1.setBackground(Color.BLACK);
+		btnColor1.addActionListener(actionListener);
 		
 		btnColor2 = new JButton("");
+		btnColor2.setOpaque(false);
 		btnColor2.setBackground(Color.GRAY);
+		btnColor2.addActionListener(actionListener);
 		
 		btnColor3 = new JButton("");
 		btnColor3.setBackground(Color.RED);
+		btnColor3.addActionListener(actionListener);
 		
 		btnColor4 = new JButton("");
 		btnColor4.setBackground(Color.PINK);
+		btnColor4.addActionListener(actionListener);
 		
 		btnColor5 = new JButton("");
 		btnColor5.setBackground(new Color(128, 0, 0));
+		btnColor5.addActionListener(actionListener);
 		
 		btnColor6 = new JButton("");
 		btnColor6.setBackground(Color.ORANGE);
+		btnColor6.addActionListener(actionListener);
 		
 		btnColor7 = new JButton("");
 		btnColor7.setBackground(Color.GREEN);
+		btnColor7.addActionListener(actionListener);
 		
 		btnColor8 = new JButton("");
 		btnColor8.setBackground(Color.YELLOW);
+		btnColor8.addActionListener(actionListener);
 		
 		btnColor9 = new JButton("");
 		btnColor9.setBackground(Color.BLUE);
+		btnColor9.addActionListener(actionListener);
 		
 		btnColor10 = new JButton("");
 		btnColor10.setBackground(Color.CYAN);
+		btnColor10.addActionListener(actionListener);
 		
 		lblCurrentColor = new JLabel("");
 		lblCurrentColor.setOpaque(true);
 		lblCurrentColor.setBackground(col);
 		
-		btnNewButton = new JButton("Test");
-
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addGap(12)
-					.addGroup(gl_tools_panel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(textField_inputCanvas, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnOval, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnRectangle, GroupLayout.PREFERRED_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnLine, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(comboBoxSize, 0, 83, Short.MAX_VALUE)
-						.addComponent(btnEraser, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnFreeDraw, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(separator_3, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(btnText, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(lblCurrentColor, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-						.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE))
-					.addContainerGap())
-				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(btnClear, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
-					.addGap(11))
-				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(btnMoreColor, GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
-					.addContainerGap())
-				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addGap(25)
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_tools_panel.createSequentialGroup()
-							.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+							.addGap(12)
+							.addGroup(gl_tools_panel.createParallelGroup(Alignment.TRAILING)
+								.addComponent(textField_inputCanvas, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnOval, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnRectangle, GroupLayout.PREFERRED_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnLine, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(comboBoxSize, 0, 84, Short.MAX_VALUE)
+								.addComponent(btnEraser, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnFreeDraw, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(separator_3, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnText, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)))
 						.addGroup(gl_tools_panel.createSequentialGroup()
-							.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+							.addGap(25)
+							.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addComponent(btnColor3, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor4, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor1, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))))
 						.addGroup(gl_tools_panel.createSequentialGroup()
-							.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+							.addContainerGap()
+							.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
 						.addGroup(gl_tools_panel.createSequentialGroup()
-							.addComponent(btnColor3, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor4, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+							.addContainerGap()
+							.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
 						.addGroup(gl_tools_panel.createSequentialGroup()
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor1, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)))
-					.addContainerGap(23, Short.MAX_VALUE))
-				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(25, Short.MAX_VALUE))
+							.addContainerGap()
+							.addComponent(lblCurrentColor, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(btnMoreColor, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(Alignment.TRAILING, gl_tools_panel.createSequentialGroup()
+							.addGap(11)
+							.addComponent(btnClear, GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)))
+					.addContainerGap())
 		);
 		gl_tools_panel.setVerticalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
@@ -543,7 +605,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					.addComponent(btnText, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(textField_inputCanvas, GroupLayout.PREFERRED_SIZE, 114, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(separator_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
@@ -555,48 +617,36 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 						.addComponent(btnColor4, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+						.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+						.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(btnMoreColor, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblCurrentColor, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(btnNewButton)
-					.addGap(17))
+					.addGap(49))
 		);
 		tools_panel.setLayout(gl_tools_panel);
 		frmSharedWhitboard.getContentPane().setLayout(groupLayout);
 			
 		//***********************
 		
-		String name = null;
-		try {
-			name = getIdentity().getName();
-		}catch (Exception e) {
-			name = "Unknown";
-		}
 		
-		status = new JLabel("Your name: " + name);
-		status.setHorizontalAlignment(SwingConstants.CENTER);//**
-		status_panel.add(status);
 		
 		whiteboard = canvas_panel;
 		whiteboard.addMouseListener(this);
 		whiteboard.addMouseMotionListener(this);
-		//buffer1 = (BufferedImage) canvas_panel.createImage(frmSharedWhitboard.getSize().width, frmSharedWhitboard.getSize().height);
 		buffer = whiteboard.createImage(canvas_panel.getSize().width,canvas_panel.getSize().height);
 		
 		btnSend.addActionListener(new ActionListener() {
@@ -607,10 +657,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					try {
 						boolean success = broadcast("chat", msg);
 						if (success) {
-							status.setText("Sent message OK.");
+							lbl_status.setText("Sent message OK.");
 						}
 						else {
-							status.setText("Failed to send message.");
+							lbl_status.setText("Failed to send message.");
 						}
 						// Clear the chat input field
 						textField.setText("");
@@ -620,31 +670,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				}
 			}
 		});
-		
-		/*Frame f = new Frame();
-		GridBagLayout gridbag = new GridBagLayout();
-		GridBagConstraints c = new GridBagConstraints();
-		f.setLayout(gridbag);
-		f.addNotify();
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-		Canvas canvas1 = new java.awt.Canvas();
-		canvas1.setSize(400,400);
-		canvas1.setBackground(Color.white);
-		gridbag.setConstraints(canvas1, c);
-		f.add(canvas1);
-		Label label1 = new java.awt.Label("Your name: " + name);
-		label1.setSize(100,30);
-		gridbag.setConstraints(label1, c);
-		f.add(label1);
-		f.setSize(600,600);
-		//f.show(); -- deprecated 
-		f.setVisible(true);
-		whiteboard = canvas1;
-		whiteboard.addMouseListener(this);
-		whiteboard.addMouseMotionListener(this);
-		buffer = whiteboard.createImage(f.getSize().width,
-		f.getSize().height);*/
 	}
 	
 	//***********************
@@ -666,10 +691,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		}catch (Exception e) {
 			System.out.println("MousePressed catch");
 		}
-		/*_currentStartX = ev.getX(); // save x coordinate of the click
-        _currentStartY = ev.getY(); // save y
-        _currentEndX   = _currentStartX;   // set end to same pixel
-        _currentEndY   = _currentStartY;*/
 	}	
 	public void mouseReleased(MouseEvent ev) {
 		System.out.println("MouseReleased start");
@@ -684,18 +705,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		}catch (Exception e) {
 			System.out.println(e);
 		}
-		/*_currentEndX = ev.getX(); // save ending coordinates
-        _currentEndY = ev.getY();
-        
-        // Draw the current shape onto the buffered image.
-        grafarea = buffer1.createGraphics();
-        drawCurrentShape(grafarea);
-        canvas_panel.repaint();*/
 	}
 	public void mouseDragged(MouseEvent ev) {
-		/*_currentEndX = ev.getX();   // save new x and y coordinates
-        _currentEndY = ev.getY();
-        canvas_panel.repaint();            // show new shape*/
 		Point evPt = ev.getPoint();
 		try {
 			nextLine(getIdentity().getName(), evPt,
@@ -781,10 +792,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		        // coord x,y when drag mouse
 		        currentX = e.getX();
 		        currentY = e.getY();
-		       
-		        
-//		        System.out.println(e.getLocationOnScreen());
-		 
 		        if ((g2 != null) & freeHandState == true){
 		          // draw line if g2 context not null
 		        	g2.setPaint(col);
@@ -796,23 +803,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		          try {
 						broadcastPaint("freeHand",col,e,oldX,oldY, brushSize);
 					} catch (IOException e1) {
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-		          // store current coords x,y as olds x,y
 		          oldX = currentX;
 		          oldY = currentY;
 		          
-		          
-		          
 		        } 
-//		        else if((freeHandState == false) & (lineState == true)){
-//		        	g2.setPaint(col);
-//			        g2.drawLine(oldX, oldY, currentX, currentY);
-//		        	
-//		        } //else if(){
-		        	
-//		        }
 		      }
 		      
 		      
@@ -823,10 +819,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    		int shapeWidth = Math.abs(currentX - oldX);
 		    		int shapeHeight = Math.abs(currentY - oldY);
 			    	  if((freeHandState == false) & (lineState == true)){
-//			    		  if (col == Color.WHITE){
-//			    			  col = Color.BLACK;
-//			    		  }
-			    		  
 				        	g2.setPaint(col);
 					        g2.drawLine(oldX, oldY, currentX, currentY);
 					        repaint();
@@ -835,18 +827,13 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        try {
 								broadcastPaint("line",col,e,oldX,oldY, brushSize);
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 				        	
 				        } 
 			    	  else if((freeHandState == false) & (rectState == true)){
-//			    		  if (col == Color.WHITE){
-//			    			  col = Color.BLACK;
-//			    		  }
 				        	g2.setPaint(col);
 					        g2.drawRect(oldX, oldY, shapeWidth, shapeHeight);
-//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
 					        repaint();
 					        isSaved = false;
 					        isNew = false;
@@ -854,19 +841,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								broadcastPaint("rectangle",col, e, oldX, oldY, brushSize);
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								System.out.println("Error");
 								e1.printStackTrace();
 							}
 				        	
 				        } 
 			    	  else if((freeHandState == false) & (circleState == true)){
-//			    		  if (col == Color.WHITE){
-//			    			  col = Color.BLACK;
-//			    		  }
 				        	g2.setPaint(col);
 					        g2.drawOval(oldX, oldY, shapeWidth, shapeWidth);
-//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
 					        repaint();
 					        isSaved = false;
 					        isNew = false;
@@ -875,18 +857,13 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
 								System.out.println("Error");
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 				        	
 				        } 
 			    	  else if((freeHandState == false) & (ovalState == true)){
-//			    		  if (col == Color.WHITE){
-//			    			  col = Color.BLACK;
-//			    		  }
 				        	g2.setPaint(col);
 					        g2.drawOval(oldX, oldY, shapeWidth, shapeHeight);
-//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
 					        repaint();
 					        isSaved = false;
 					        isNew = false;
@@ -895,28 +872,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
 								System.out.println("Error");
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 				        	
 				        }
 			    	  else if((freeHandState == false) & (textState == true)){
-//			    		  if (col == Color.WHITE){
-//			    			  col = Color.BLACK;
-//			    		  }
 				        	g2.setPaint(col);
-//					        g2.drawOval(oldX, oldY, shapeWidth, shapeHeight);
-//				        	if(brushSize < 8) {
-//				        		brushSize = 8;
-//				        	}
-//				        	int fontSize = shapeWidth;
-//				        	JFrame frame = new JFrame();
-//				        	Object result = JOptionPane.showInputDialog(frame, "Enter printer name:");
-				        	Font font = new Font("Serif", Font.PLAIN, shapeWidth);
-				        	 
+				        	Font font = new Font("Serif", Font.PLAIN, shapeWidth);	 
 				        	g2.setFont(font);
 					        g2.drawString(textField_inputCanvas.getText(), oldX, oldY);
-//				        	g2.drawRect(oldX, oldY, currentX-oldX, currentY-oldY);
 					        repaint();
 					        isSaved = false;
 					        isNew = false;
@@ -925,7 +889,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								System.out.println("Painting broadcasted");
 							} catch (IOException e1) {
 								System.out.println("Error");
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 				        	
@@ -944,7 +907,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      // clear draw area
 		      clear();
 		    }
-		 
 		    g.drawImage(image, 0, 0, null);
 		  }
 		 
@@ -952,39 +914,42 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  public void clear() {
 			  col = Color.BLACK;
 			  freeHandState = true;
-			  freeHandState = true;
 			  lineState = false;
 			  rectState = false;
 			  circleState = false;
 			  ovalState = false;
 			  g2.setPaint(Color.white);
 			  g2.fillRect(0, 0, getSize().width, getSize().height);
-			  g2.setPaint(Color.black);
+			  //g2.setPaint(Color.black);
 			  g2.setStroke(new BasicStroke(1));
 			  repaint();
 			  isSaved = false;
 			  isNew = true;
-			  logArea.setText("");
+			  //status.setText("Whiteboard Cleared");
 		  }
 		 
 		  public void setBrushSize() {
 			  brushSize = Integer.parseInt((String) comboBoxSize.getSelectedItem());
 			  g2.setStroke(new BasicStroke(brushSize));
-			  currentBrushsize = brushSize;			  
+			  currentBrushsize = brushSize;
+			  if(brushSize > 36) {
+				  lbl_status.setText("Wow!");
+			  }
 		  }
 		 
 		  public void colorChooser() {
 			  col = JColorChooser.showDialog(null, "Choose a color", col);
-			  lblCurrentColor.setBackground(col);
-//		    g2.setPaint(Color.black);
-			  
+			  lblCurrentColor.setBackground(col);  
 		  }
-		 
+		  public void colorChooser(Color c) {
+			  col = c;
+			  lblCurrentColor.setBackground(col);  
+		  }
+		  
 		  public void brush() {
 			  if (col == Color.WHITE){
 				  col = Color.BLACK;
 			  }
-//			  	col = Color.BLACK;
 			    freeHandState = true;
 			    lineState = false;
 			    rectState = false;
@@ -993,7 +958,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  }
 		 
 		  public void line() {
-//			  col = Color.BLACK;
 			  if (col == Color.WHITE){
 				  col = Color.BLACK;
 			  }
@@ -1002,7 +966,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    rectState = false;
 			    circleState = false;
 			    ovalState = false;
-//			    col = Color.BLACK;
 		  }
 		 
 		  public void rectangle() {
@@ -1060,7 +1023,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			    ovalState = false;
 			  col = Color.WHITE;
 			    g2.setPaint(col);
-//			    col = Color.BLACK;
 		  }
 		  public void newCanvas() {
 			  if(!isSaved && !isNew) {
@@ -1079,12 +1041,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  clear();
 				  } else if(n == 1) {
 					  clear();
-					  logArea.append("...New Painting created.\n");
+					  lbl_status.setText("...New Painting created");
 				  } else {}
 				  
 			  }else {
 				  clear();
-				  logArea.append("...New Painting created.\n");
+				  lbl_status.setText("...New Painting created");
 			  }
 		  }
 		  
@@ -1094,59 +1056,48 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				  try {
 					  	bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
 						Graphics g = bi.createGraphics();
-						drawArea.paint(g);  //this == JComponent
-						g.dispose();
-						//ImageIcon imageIcon = new ImageIcon(bi); 
+						drawArea.paint(g); 
+						g.dispose(); 
 						ImageIO.write(bi,"png",selectedFile);
-						logArea.append("Saved... \n");
+						lbl_status.setText("WhiteBoard Saved...");
 						isSaved = true;
-					
 					}
 					catch (Exception e1) {
-						logArea.append("Problems with saving!!!\n");
+						lbl_status.setText("Problems with saving!!!");
 					}
 			  } else {
 				  saveAsCanvas();
-			  }
-			  
-			    
+			  }    
 		  }
 		  
 		  public void saveAsCanvas() {
 			  
 			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
 				Graphics g = bi.createGraphics();
-				drawArea.paint(g);  //this == JComponent
+				drawArea.paint(g); 
 				g.dispose();
-//				try{ImageIO.write(bi,"png",new File("test.png"));}catch (Exception e1) {}
-//				int returnValue = jfc.showOpenDialog(null);
 				int returnValue = jfc.showSaveDialog(null);
 				ImageIcon imageIcon = new ImageIcon(bi); 
 
 				if (returnValue == JFileChooser.APPROVE_OPTION) {
 					selectedFile = jfc.getSelectedFile();
-//					System.out.println(selectedFile.getAbsolutePath());
 					try {
 						ImageIO.write(bi,"png",selectedFile);
-						logArea.append("Saved... \n");
+						lbl_status.setText("WhiteBoard Saved...");
 						isSaved = true;
 					}
 					catch (Exception e1) {
-						logArea.append("Problems with saving!!!\n");
+						lbl_status.setText("Problems with saving!!!");
 					}
-//					try{ImageIO.write(bi, "png", selectedFile);}catch (Exception e1) {}
 				}
 		  }
 		  
 		  public void openCanvas() {
 			  if(isNew) {
 				  int returnValue = jfc.showOpenDialog(null);
-//					 int returnValue = jfc.showSaveDialog(null);
 				  clear();
-
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 						selectedFile = jfc.getSelectedFile();
-//						System.out.println(selectedFile.getAbsolutePath());
 						try {
 							Image imageInput = ImageIO.read(selectedFile);
 							//drawArea.image = imageInput;
@@ -1156,10 +1107,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 							g2.drawImage(imageInput,0,0,null);
 							repaint();
 							isNew = false;
-							logArea.append("File opened sucessfully.\n");
+							lbl_status.setText("File opened sucessfully.");
 						}
 						catch (Exception e1) {
-							logArea.append("Error opening file!!!.\n");
+							lbl_status.setText("Error openning file!!!");
 						}
 					}
 			  } else if(!isSaved) {
@@ -1176,11 +1127,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  saveAsCanvas();
 					  isSaved = true;
 					  int returnValue = jfc.showOpenDialog(null);
-//						 int returnValue = jfc.showSaveDialog(null);
 					  clear();
 						if (returnValue == JFileChooser.APPROVE_OPTION) {
 							selectedFile = jfc.getSelectedFile();
-//							System.out.println(selectedFile.getAbsolutePath());
 							try {
 								Image imageInput = ImageIO.read(selectedFile);
 								BufferedImage bi = (BufferedImage) imageInput;
@@ -1191,19 +1140,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								isNew = false;
 							}
 							catch (Exception e1) {
-								logArea.append("Error opening file!!!.\n");
+								lbl_status.setText("Error opening file!!!");
 							}
-//							try{ImageIO.write(bi, "png", selectedFile);}catch (Exception e1) {}
 						}
 					  
 				  } else if(n == 1) {
 					  int returnValue = jfc.showOpenDialog(null);
-//						 int returnValue = jfc.showSaveDialog(null);
 					  clear();
-
 						if (returnValue == JFileChooser.APPROVE_OPTION) {
 							selectedFile = jfc.getSelectedFile();
-//							System.out.println(selectedFile.getAbsolutePath());
 							try {
 								Image imageInput = ImageIO.read(selectedFile);
 								BufferedImage bi = (BufferedImage) imageInput;
@@ -1212,23 +1157,19 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 								g2.drawImage(imageInput,0,0,null);
 								repaint();
 								isNew = false;
-								logArea.append("File opened sucessfully.\n");
+								lbl_status.setText("File opened sucessfully");
 							}
 							catch (Exception e1) {
-								logArea.append("Error opening file!!!.\n");
+								lbl_status.setText("Error opening file!!!");
 							}
-//							try{ImageIO.write(bi, "png", selectedFile);}catch (Exception e1) {}
 						}
-					  logArea.append("File opened sucessfully.\n");
+						lbl_status.setText("File opened sucessfully");
 				  } else {}
 			  }	else {
 				  int returnValue = jfc.showOpenDialog(null);
-//					 int returnValue = jfc.showSaveDialog(null);
 				  clear();
-
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 						selectedFile = jfc.getSelectedFile();
-//						System.out.println(selectedFile.getAbsolutePath());
 						try {
 							Image imageInput = ImageIO.read(selectedFile);
 							BufferedImage bi = (BufferedImage) imageInput;
@@ -1237,12 +1178,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 							g2.drawImage(imageInput,0,0,null);
 							repaint();
 							isNew = false;
-							logArea.append("File opened sucessfully.\n");
+							lbl_status.setText("File opened sucessfully");
 						}
 						catch (Exception e1) {}
-//						try{ImageIO.write(bi, "png", selectedFile);}catch (Exception e1) {}
+						lbl_status.setText("Error opening file!!!");
 					}
-				  logArea.append("File opened sucessfully.\n");
+					lbl_status.setText("File opened sucessfully");
 			  }
 		  }
 		  
@@ -1308,10 +1249,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  g2.setStroke(new BasicStroke(currentBrushsize));
 			  return true;
 			  
-		  }
-		  
-		  public void sendMessage() {
-			    g2.setPaint(Color.blue);
 		  }
 		  
 		  public void closeCanvas() {
