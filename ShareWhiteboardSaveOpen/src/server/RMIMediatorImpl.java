@@ -27,7 +27,8 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	private static Enumeration idlistnow;
 	Hashtable clients = new Hashtable();  
 	Vector idList = new Vector();
-	byte[] currentImage;
+	byte[] currentImage = null;
+	Identity firstMember;
 	public RMIMediatorImpl() throws RemoteException {    
 		super();  }
 	
@@ -66,10 +67,16 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 		  if (n == 1) {
 			  return null;
 		  }
-		  else {
-			RMICollaborator target = null;  
+		  else if (n==0) {
+			
+			Enumeration ids = clients.keys();
+			Identity i = (Identity) ids.nextElement();
+			RMICollaborator target = null;
+			target = (RMICollaborator)clients.get(i);   
+			System.out.print(target);
 			try {
-			currentImage = target.imageLoad();
+//			currentImage =
+			target.imageLoad();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -89,7 +96,10 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  }    
 		  }
   	
-	  Identity newId = new Identity(max + 1);    
+	  Identity newId = new Identity(max + 1);
+	  if (max+ 1 == 0) {
+		  this.firstMember = newId;
+	  }
 	  synchronized (idList) {      
 		  idList.addElement(newId);    
     		}   

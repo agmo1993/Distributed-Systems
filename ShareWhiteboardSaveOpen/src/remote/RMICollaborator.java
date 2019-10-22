@@ -22,5 +22,5 @@ public boolean notify(String tag, String msg, Identity src)throws IOException, R
 public boolean notify(String tag, Object data, Identity src)throws IOException, RemoteException;
 public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException;
 public boolean notifyBI(BufferedImage image)throws IOException, RemoteException;
-public byte[] imageLoad() throws IOException;
+public void imageLoad() throws IOException;
 }

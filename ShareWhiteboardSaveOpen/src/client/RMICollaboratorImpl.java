@@ -165,8 +165,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return false;
 	}
 	@Override
-	public byte[] imageLoad() throws IOException {
+	public void imageLoad() throws IOException {
 		// TODO Auto-generated method stub
-		return null;
 	}
 }

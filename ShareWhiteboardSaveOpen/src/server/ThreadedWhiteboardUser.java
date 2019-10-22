@@ -771,12 +771,25 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return true;
 	}
 	
-	public byte[] imageLoad() throws IOException {
-		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    ImageIO.write(bi, "jpg", bos );
-	    byte [] data = bos.toByteArray();
-	    return data;
+	public void imageLoad() throws IOException {
+//		BufferedImage bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//	    ImageIO.write(bi, "png", bos);
+//	    byte [] data = bos.toByteArray();
+//	    System.out.println(data);
+//	    return data;
+		
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+		File selectedFile = new File("images/images.png");
+		try {
+			
+			ImageIO.write(bi,"png",selectedFile);
+			lbl_status.setText("WhiteBoard Saved...");
+			isSaved = true;
+		}
+		catch (Exception e1) {
+			lbl_status.setText("Problems with saving!!!");
+		}
 	}
 	
 	

@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
@@ -56,7 +57,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
-	public BufferedImage currentImage;
+	public Image currentImage;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -790,16 +791,24 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    setDoubleBuffered(false);
 		    
 			try {
-				byte[] data = mediator.presentImage();
-			    ByteArrayInputStream bis = new ByteArrayInputStream(data);
-				BufferedImage bImage2;
-				bImage2 = ImageIO.read(bis);
-				currentImage = bImage2;
-			    g2.drawImage(currentImage,0,0,null);
+//				byte[] data = mediator.presentImage();
+//			    InputStream bis = new ByteArrayInputStream(data);
+//				Image bImage2 = ImageIO.read(bis);
+//				System.out.println(data);
+				File filePath = new File("images/images.png");
+				Image imageInput = ImageIO.read(filePath);
+				//drawArea.image = imageInput;
+//				BufferedImage bi = (BufferedImage) imageInput;
+//				Graphics g = bi.createGraphics();
+//				clear();
+				g2.drawImage(imageInput,0,0,null);
 			    repaint();
 			} catch (IOException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
+			}
+			catch (NullPointerException e) {
+				System.out.println(e.getMessage());
 			}
 			
 		    addMouseListener(new MouseAdapter() {
