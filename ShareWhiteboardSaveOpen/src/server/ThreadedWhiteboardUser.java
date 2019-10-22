@@ -4,8 +4,11 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -55,6 +59,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
+	protected CommHelperUser helperUser;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -77,7 +82,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JPanel users_panel;
 	protected JLabel lblUsersConected;
 	protected JLabel lblUsers;
-	protected JList list_client;
+	protected JList<String> list_client;
 
 	protected JTextField textField;
 	protected JButton btnSend;
@@ -141,7 +146,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
-	   
+	
     //***********************
     
 	ActionListener actionListener = new ActionListener() {
@@ -227,6 +232,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		startUI();
 		helper = new CommHelper(this);
 		helper.start();
+		helperUser = new CommHelperUser(this);
+		helperUser.start();
 	}
 	
 	protected void startUI() {
@@ -360,11 +367,13 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblUsersConected.setForeground(Color.WHITE);
 		lblUsersConected.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 
-		lblUsers = new JLabel("X");
+		lblUsers = new JLabel();
 		lblUsers.setForeground(Color.WHITE);
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
-		list_client = new JList();
+		list_client = new JList<String>();
+		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
+		//lblUsers.setText(""+ list_client.getComponentCount());
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -727,6 +736,25 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	
+	public boolean notifyBI(BufferedImage image) {
+		boolean success = false;
+		success = drawArea.remotePaintBI(image);
+		return success;
+	}
+	public boolean notifyUsers(Hashtable clients)throws IOException, RemoteException {    
+		Enumeration ids; 
+		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
+		ids = clients.keys();
+		while(ids.hasMoreElements()) {
+			Identity i = (Identity)ids.nextElement(); 
+			currentUsers.addElement(i.getName());
+		}
+		
+		list_client = new JList<String>(currentUsers);
+		lblUsers.setText(""+list_client.getComponentCount());
+		return true;
+	}
+	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
 		chatArea.append("\n" + src.getName() + ": " + msg);
@@ -762,6 +790,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			lastPts.remove(src.getName());
 		}
 		return true;
+	}
+	
+	public byte[] imageLoad() throws IOException {
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ImageIO.write(bi, "jpg", bos );
+	    byte [] data = bos.toByteArray();
+	    return data;
 	}
 	
 	
@@ -825,7 +861,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        isSaved = false;
 					        isNew = false;
 					        try {
-								broadcastPaint("line",col,e,oldX,oldY, brushSize);
+					        	//bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+								//broadcastBI(bi);
+					        	broadcastPaint("line",col,e,oldX,oldY, brushSize);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -897,7 +935,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			});
 		  }
 		 
-		  protected void paintComponent(Graphics g) {
+		  public boolean remotePaintBI(BufferedImage image2) {
+			g2.drawImage(image2,0,0,null);
+			repaint();
+			isNew = false;
+			return true;
+		}
+
+		protected void paintComponent(Graphics g) {
 		    if (image == null) {
 		      // image to draw null ==> we create
 		      image = createImage(getSize().width, getSize().height);
@@ -1315,6 +1360,21 @@ class CommHelper extends Thread {
 				}
 				collaborator.broadcast(m.tag, m.data);
 			}catch (Exception e) {}
+		}
+	}
+}
+class CommHelperUser extends Thread {
+	RMICollaborator collaborator;
+	static Vector msgs = new Vector();
+	public CommHelperUser(RMICollaborator c) {
+		collaborator = c;
+	}
+	public void run() {
+		while (true) {
+			try {
+				collaborator.broadcastUsers();
+				}
+			catch (Exception e) {}
 		}
 	}
 }

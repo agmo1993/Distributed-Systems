@@ -2,11 +2,17 @@ package client;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
-import java.io.IOException; 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import remote.Identity;
+import remote.RMICollaborator;
+import remote.RMIMediator;
 
 import java.rmi.Naming; 
 import java.rmi.RemoteException;
@@ -14,7 +20,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject; 
 import java.rmi.RMISecurityManager;
-import remote.*;
 
 public class RMICollaboratorImpl extends UnicastRemoteObject implements RMICollaborator
 {  
@@ -49,7 +54,16 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 				Registry registry = LocateRegistry.getRegistry();
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
-				Identity newId = mediator.newMember();
+				Identity newId = mediator.newMember(id.getName());
+				if (newId == null) {
+					JFrame errorFrame = new JFrame();
+					JOptionPane.showMessageDialog(errorFrame,
+							"Access to whitebaord has been denied",
+						    "Connection error",
+						    JOptionPane.ERROR_MESSAGE);
+					System.out.println();
+					System.exit(0);
+				}
 				mediator.register(newId, this);        
 				newId.setName(id.getName());        
 				id = newId;        
@@ -109,6 +123,16 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return success;  
 	}
 	
+	public boolean broadcastBI(BufferedImage image)throws RemoteException, IOException{
+		boolean success = false;    
+		if (mediator != null) {      
+			success = mediator.broadcastBI(image, getIdentity()); 
+			System.out.println("Sent to mediator");
+			}
+		
+		return success;  
+	}
+	
 	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) {
 		System.out.println("Got message to Paint");    
 		return true;  
@@ -135,5 +159,29 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			System.out.println("Caught exception:");      
 			e.printStackTrace();    
 		}  
+	}
+	@Override
+	public boolean notifyBI(BufferedImage image) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public byte[] imageLoad() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public boolean broadcastUsers() throws IOException, RemoteException {
+		boolean success = false;
+		if (mediator != null) {
+			success = mediator.broadcastUsers();
+			System.out.println("Sent to mediator");
+		}
+		return success;
+	}
+	@Override
+	public boolean notifyUsers(Hashtable clients) throws IOException, RemoteException {
+		System.out.println("Got message of clients");    
+		return true; 
 	}
 }
