@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -737,16 +738,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		success = drawArea.remotePaintBI(image);
 		return success;
 	}
-	public boolean notifyUsers(Hashtable clients)throws IOException, RemoteException {    
-		Enumeration ids; 
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+		System.out.println("HERE");
 		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
-		ids = clients.keys();
-		while(ids.hasMoreElements()) {
-			Identity i = (Identity)ids.nextElement(); 
-			currentUsers.addElement(i.getName());
-		}
-		
 		list_client = new JList<String>(currentUsers);
+		for (String temp : clients) {
+			currentUsers.addElement(temp);
+			//System.out.println(currentUsers);
+		}
 		lblUsers.setText(""+list_client.getComponentCount());
 		return true;
 	}

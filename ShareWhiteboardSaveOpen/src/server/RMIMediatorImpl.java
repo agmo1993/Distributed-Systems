@@ -9,7 +9,8 @@ import remote.Identity;
 import remote.RMICollaborator;
 import remote.RMIMediator;
 
-import java.util.Hashtable; 
+import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -188,18 +189,25 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	  }
   public boolean broadcastUsers() throws RemoteException, IOException {
 	  boolean success = true;    
-	  Enumeration ids;    
+	  Enumeration ids;
+	  ArrayList<String> usersArrayList = new ArrayList<String>();
 	  synchronized (clients) {      
 		  ids = clients.keys();    
 		  }    
-	  RMICollaborator target = null;    
+	  RMICollaborator target = null;
+//	  while (ids.hasMoreElements()) {
+//		  Identity i = (Identity)ids.nextElement();
+//		  target = (RMICollaborator)clients.get(i); 
+//		  usersArrayList.add(target.getIdentity().getName());
+//	  }
 	  while (ids.hasMoreElements()) {      
-		  Identity i = (Identity)ids.nextElement();      
+		  Identity i = (Identity)ids.nextElement();
 		  synchronized (clients) {        
-			  target = (RMICollaborator)clients.get(i);      
+			  target = (RMICollaborator)clients.get(i);
+			  usersArrayList.add(target.getIdentity().getName());
 			  }      
 		  synchronized (target) {        
-			  if (target == null ||!target.notifyUsers(clients)) {
+			  if (target == null ||!target.notifyUsers(usersArrayList)) {
 				  success = false;        
 				  System.out.print(success);
 				  }      

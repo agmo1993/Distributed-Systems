@@ -59,7 +59,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
-	protected CommHelperUser helperUser;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -147,6 +146,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
 	
+	protected DefaultListModel<String> currentUsers;
+	
     //***********************
     
 	ActionListener actionListener = new ActionListener() {
@@ -232,8 +233,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		startUI();
 		helper = new CommHelper(this);
 		helper.start();
-		helperUser = new CommHelperUser(this);
-		helperUser.start();
 	}
 	
 	protected void startUI() {
@@ -242,6 +241,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				try {
 					buildUI();
 					frmSharedWhitboard.setVisible(true);
+					broadcastUsers();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -371,7 +371,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblUsers.setForeground(Color.WHITE);
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
-		list_client = new JList<String>();
+		currentUsers = new DefaultListModel<String>();
+		list_client = new JList<String>(currentUsers);
 		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		//lblUsers.setText(""+ list_client.getComponentCount());
 		
@@ -741,16 +742,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		success = drawArea.remotePaintBI(image);
 		return success;
 	}
-	public boolean notifyUsers(Hashtable clients)throws IOException, RemoteException {    
-		Enumeration ids; 
-		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
-		ids = clients.keys();
-		while(ids.hasMoreElements()) {
-			Identity i = (Identity)ids.nextElement(); 
-			currentUsers.addElement(i.getName());
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException { 
+		for (String temp : clients) {
+			currentUsers.addElement(temp);
+			System.out.println("model"+currentUsers);
 		}
-		
-		list_client = new JList<String>(currentUsers);
 		lblUsers.setText(""+list_client.getComponentCount());
 		return true;
 	}
@@ -1360,21 +1356,6 @@ class CommHelper extends Thread {
 				}
 				collaborator.broadcast(m.tag, m.data);
 			}catch (Exception e) {}
-		}
-	}
-}
-class CommHelperUser extends Thread {
-	RMICollaborator collaborator;
-	static Vector msgs = new Vector();
-	public CommHelperUser(RMICollaborator c) {
-		collaborator = c;
-	}
-	public void run() {
-		while (true) {
-			try {
-				collaborator.broadcastUsers();
-				}
-			catch (Exception e) {}
 		}
 	}
 }

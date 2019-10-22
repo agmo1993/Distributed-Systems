@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -108,7 +110,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		boolean success = false;
 		if (mediator != null) {
 			success = mediator.broadcastUsers();
-			System.out.println("Sent to mediator");
+			System.out.println("Sent to mediator broadcastUsers");
 		}
 		return success;
 	}
@@ -125,7 +127,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		boolean success = false;    
 		if (mediator != null) {      
 			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y, brushSize);    
-			System.out.println("Sent to mediator");
+			System.out.println("Sent to mediator broadcastPaint");
 			}
 		
 		return success;  
@@ -155,7 +157,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		System.out.println("Got message: \"" + tag + " " + data + "\"" + " from " + src.getName());    
 		return true;  	
 	}
-	public boolean notifyUsers(Hashtable clients)throws IOException, RemoteException {    
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
 		System.out.println("Got message of clients");    
 		return true;  	
 	}
