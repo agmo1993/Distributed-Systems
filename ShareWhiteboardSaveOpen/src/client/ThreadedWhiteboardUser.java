@@ -6,6 +6,7 @@ import java.awt.image.RenderedImage;
 import java.awt.*;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -55,6 +56,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
+	public BufferedImage currentImage;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -469,7 +471,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnClear = new JButton("Clear");
 		btnClear.setFont(new Font("Arial Unicode MS", Font.PLAIN, 16));
 		btnClear.addActionListener(actionListener);
-		btnClear.setEnabled(false);
 		
 		btnText = new JButton("");
 		btnText.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-type-32.png")));
@@ -729,6 +730,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	
+	public boolean notifyBI(BufferedImage image) {
+		boolean success = false;
+		success = drawArea.remotePaintBI(image);
+		return success;
+	}
+	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
 		chatArea.append("\n" + src.getName() + ": " + msg);
@@ -781,6 +788,20 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		 
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
+		    
+			try {
+				byte[] data = mediator.presentImage();
+			    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+				BufferedImage bImage2;
+				bImage2 = ImageIO.read(bis);
+				currentImage = bImage2;
+			    g2.drawImage(currentImage,0,0,null);
+			    repaint();
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
 		    addMouseListener(new MouseAdapter() {
 		      public void mousePressed(MouseEvent e) {
 		        // save coord x,y when mouse is pressed
@@ -827,7 +848,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        isSaved = false;
 					        isNew = false;
 					        try {
-								broadcastPaint("line",col,e,oldX,oldY, brushSize);
+					        	//bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+								//broadcastBI(bi);
+					        	broadcastPaint("line",col,e,oldX,oldY, brushSize);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -899,7 +922,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			});
 		  }
 		 
-		  protected void paintComponent(Graphics g) {
+		  public boolean remotePaintBI(BufferedImage image2) {
+			g2.drawImage(image2,0,0,null);
+			repaint();
+			isNew = false;
+			return true;
+		}
+
+		protected void paintComponent(Graphics g) {
 		    if (image == null) {
 		      // image to draw null ==> we create
 		      image = createImage(getSize().width, getSize().height);
@@ -1254,7 +1284,28 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  }
 		  
 		  public void closeCanvas() {
-			  frmSharedWhitboard.dispose();
+			  if(isNew) {
+				  frmSharedWhitboard.dispose();
+			  }else if(!isSaved) {
+				  Object[] options = {"Save", "Don't Save", "Cancel"};
+				  int n = JOptionPane.showOptionDialog(null,
+				      "Would you like to save the canvas before creating a new one?",
+				      "Save Canvas",
+				      JOptionPane.YES_NO_CANCEL_OPTION,
+				      JOptionPane.QUESTION_MESSAGE,
+				      null,
+				      options,
+				      options[2]);				  
+				  if (n == 0) {
+					  saveAsCanvas();
+					  isSaved = true;
+					  frmSharedWhitboard.dispose();
+				  } else if(n == 1) {
+					  frmSharedWhitboard.dispose();
+				  } else {}
+			  }else {
+				  frmSharedWhitboard.dispose();
+			  }
 		  }
 		}
 }

@@ -2,6 +2,7 @@ package server;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException; 
 import java.util.Properties;
 
@@ -52,7 +53,16 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 				Registry registry = LocateRegistry.getRegistry();
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
-				Identity newId = mediator.newMember();
+				Identity newId = mediator.newMember(id.getName());
+				if (newId == null) {
+					JFrame errorFrame = new JFrame();
+					JOptionPane.showMessageDialog(errorFrame,
+							"Access to whitebaord has been denied",
+						    "Connection error",
+						    JOptionPane.ERROR_MESSAGE);
+					System.out.println();
+					System.exit(0);
+				}
 				mediator.register(newId, this);        
 				newId.setName(id.getName());        
 				id = newId;        
@@ -112,6 +122,16 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return success;  
 	}
 	
+	public boolean broadcastBI(BufferedImage image)throws RemoteException, IOException{
+		boolean success = false;    
+		if (mediator != null) {      
+			success = mediator.broadcastBI(image, getIdentity()); 
+			System.out.println("Sent to mediator");
+			}
+		
+		return success;  
+	}
+	
 	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) {
 		System.out.println("Got message to Paint");    
 		return true;  
@@ -138,5 +158,15 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			System.out.println("Caught exception:");      
 			e.printStackTrace();    
 		}  
+	}
+	@Override
+	public boolean notifyBI(BufferedImage image) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	@Override
+	public byte[] imageLoad() throws IOException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

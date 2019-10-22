@@ -6,6 +6,7 @@ import java.awt.image.RenderedImage;
 import java.awt.*;
 import java.util.Hashtable;
 import java.util.Properties;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -727,6 +728,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	
+	public boolean notifyBI(BufferedImage image) {
+		boolean success = false;
+		success = drawArea.remotePaintBI(image);
+		return success;
+	}
+	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
 		chatArea.append("\n" + src.getName() + ": " + msg);
@@ -762,6 +769,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			lastPts.remove(src.getName());
 		}
 		return true;
+	}
+	
+	public byte[] imageLoad() throws IOException {
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ImageIO.write(bi, "jpg", bos );
+	    byte [] data = bos.toByteArray();
+	    return data;
 	}
 	
 	
@@ -825,7 +840,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					        isSaved = false;
 					        isNew = false;
 					        try {
-								broadcastPaint("line",col,e,oldX,oldY, brushSize);
+					        	//bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+								//broadcastBI(bi);
+					        	broadcastPaint("line",col,e,oldX,oldY, brushSize);
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -897,7 +914,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			});
 		  }
 		 
-		  protected void paintComponent(Graphics g) {
+		  public boolean remotePaintBI(BufferedImage image2) {
+			g2.drawImage(image2,0,0,null);
+			repaint();
+			isNew = false;
+			return true;
+		}
+
+		protected void paintComponent(Graphics g) {
 		    if (image == null) {
 		      // image to draw null ==> we create
 		      image = createImage(getSize().width, getSize().height);

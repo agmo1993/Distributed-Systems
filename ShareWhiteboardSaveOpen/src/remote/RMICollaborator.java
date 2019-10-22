@@ -3,6 +3,7 @@ package remote;
 import java.rmi.RemoteException;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException; 
 import java.rmi.Remote; 
 import java.util.Properties;
@@ -19,6 +20,7 @@ public boolean broadcast(String tag, Object data)throws IOException, RemoteExcep
   // Incoming messages/data  
 public boolean notify(String tag, String msg, Identity src)throws IOException, RemoteException;  
 public boolean notify(String tag, Object data, Identity src)throws IOException, RemoteException;
-public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException; 
-
+public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException;
+public boolean notifyBI(BufferedImage image)throws IOException, RemoteException;
+public byte[] imageLoad() throws IOException;
 }
