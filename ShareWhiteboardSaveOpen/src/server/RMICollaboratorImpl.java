@@ -8,6 +8,10 @@ import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import remote.Identity;
+import remote.RMICollaborator;
+import remote.RMIMediator;
+
 import java.rmi.Naming; 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -43,6 +47,8 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			try {        
 				//String url = "rmi://" + host + "/" + mName;        
 				//System.out.println("looking up " + url);
+								
+				//Registry registry = LocateRegistry.getRegistry("192.168.0.119", 1099);
 				Registry registry = LocateRegistry.getRegistry();
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
@@ -96,17 +102,17 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return success;  
 	}
 	
-	public boolean broadcastPaint(String shape, Color col, MouseEvent e, int X, int Y) throws RemoteException, IOException {
+	public boolean broadcastPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) throws RemoteException, IOException {
 		boolean success = false;    
 		if (mediator != null) {      
-			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y);    
+			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y, brushSize);    
 			System.out.println("Sent to mediator");
 			}
 		
 		return success;  
 	}
 	
-	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y) {
+	public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize) {
 		System.out.println("Got message to Paint");    
 		return true;  
 	}
@@ -123,33 +129,10 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 
 	public static void main(String argv[]) {    // Install a security manager       
 		try {      
-			/*String name = argv[0];      
-			String host = argv[1];      
-			String mname = argv[2];*/
 			Properties props = new Properties();      
-			//props.put("host", host);      
-			//props.put("mediatorName", mname);      
-			//RMIChatClient c = new RMIChatClient("ecc","e","z");
 			Color col = Color.black; 
-			Color col2 = Color.blue; 
-			//RMIMediatorImpl mediatorobj = new RMIMediatorImpl();
-			//mediatorobj.main(argv);
-			//WhiteboardUser w = new WhiteboardUser ("ClientWhiteboard 1",col,"host","TheMediator");
-			JFrame frame = new JFrame();
-		    String result = JOptionPane.showInputDialog(frame, "Please enter your username to connect to canvas");
-//		    String clientName = result;
-
-			ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(result, col, "host","TheMediator");
-			//ThreadedWhiteboardUser tobj1 = new ThreadedWhiteboardUser("WB Client 2", col2, "host","TheMediator");
-			/*
-			 * 
-			if (c.connect(props)) {        
-				System.out.println("Got mediator...");        
-				c.broadcast("msg", "hello world");      
-				}
+		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("User 1", col, "host","TheMediator");
 			
-			}
-			*/    
 		}
 		catch (Exception e) {      
 			System.out.println("Caught exception:");      

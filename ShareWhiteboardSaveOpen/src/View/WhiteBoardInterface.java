@@ -5,17 +5,10 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
-import java.awt.Image;
-
 import javax.swing.JMenuBar;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-
 import java.awt.Component;
-
-import javax.imageio.ImageIO;
 import javax.swing.Box;
 import java.awt.TextArea;
 import javax.swing.BoxLayout;
@@ -41,6 +34,9 @@ import java.awt.CardLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
+import javax.swing.ImageIcon;
+import java.awt.Toolkit;
+import javax.swing.JList;
 
 public class WhiteBoardInterface {
 
@@ -55,17 +51,31 @@ public class WhiteBoardInterface {
 	private JSeparator separator;
 	private JPanel canvas_panel;
 	private JPanel secondary_panel;
-	private JSeparator separator_2;
 	private JTextField textField;
 	private JSeparator separator_4;
 	private JSeparator separator_5;
-	private JSeparator separator_1;
 	private JButton btnRectangle;
 	private JButton btnOval;
 	private JButton btnEraser;
-	private JButton btnColor;
+	private JButton btnMoreColor;
 	private JButton btnClear;
-	private JButton btnNewButton;
+	private JPanel users_panel;
+	private JLabel lblUsers;
+	private JButton btnText;
+	private JButton btnColor1;
+	private JTextField textField_inputCanvas;
+	private JLabel lblCurrentColor;
+	private JButton btnColor2;
+	private JButton btnColor3;
+	private JButton btnColor4;
+	private JButton btnColor5;
+	private JButton btnColor6;
+	private JButton btnColor7;
+	private JButton btnColor8;
+	private JButton btnColor9;
+	private JButton btnColor10;
+	private JList list_client;
+	private JLabel lbl_chat;
 
 	/**
 	 * Launch the application.
@@ -95,32 +105,42 @@ public class WhiteBoardInterface {
 	 */
 	private void initialize() {
 		frmSharedWhitboard = new JFrame();
+		frmSharedWhitboard.setIconImage(Toolkit.getDefaultToolkit().getImage(WhiteBoardInterface.class.getResource("/View/icons8-paint-palette-32.png")));
 		frmSharedWhitboard.setTitle("Shared Whiteboard");
-		frmSharedWhitboard.setBounds(100, 100, 1118, 764);
+		//frmSharedWhitboard.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//frmSharedWhitboard.setUndecorated(true);
+		frmSharedWhitboard.setBounds(100, 100, 1526, 998);
+		frmSharedWhitboard.getContentPane().setBackground(new Color(12,92,117));
 		frmSharedWhitboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		menuBar = new JMenuBar();
 		frmSharedWhitboard.setJMenuBar(menuBar);
 		
 		mnFile = new JMenu("File");
+		mnFile.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		menuBar.add(mnFile);
 		
 		mntmNew = new JMenuItem("New");
+		mntmNew.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmNew);
 		
 		mntmOpen = new JMenuItem("Open");
+		mntmOpen.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmOpen);
 		
 		mntmSave = new JMenuItem("Save");
+		mntmSave.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSave);
 		
 		mntmSaveAs = new JMenuItem("Save As...");
+		mntmSaveAs.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSaveAs);
 		
 		separator = new JSeparator();
 		mnFile.add(separator);
 		
 		mntmClose = new JMenuItem("Close");
+		mntmClose.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmClose);
 		
 		JPanel status_panel = new JPanel();
@@ -130,90 +150,127 @@ public class WhiteBoardInterface {
 		status_panel.add(status);
 		
 		canvas_panel = new JPanel();
+		canvas_panel.setBackground(Color.WHITE);
 		
 		JPanel tools_panel = new JPanel();
+		tools_panel.setBackground(Color.WHITE);
 		
 		secondary_panel = new JPanel();
+		secondary_panel.setBackground(new Color(24,154,167));
 		
-		separator_1 = new JSeparator();
-		separator_1.setOrientation(SwingConstants.VERTICAL);
+		users_panel = new JPanel();
+		users_panel.setBackground(new Color(24,154,167));
 
 		GroupLayout groupLayout = new GroupLayout(frmSharedWhitboard.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(tools_panel, GroupLayout.PREFERRED_SIZE, 92, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 2, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(canvas_panel, GroupLayout.PREFERRED_SIZE, 703, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(secondary_panel, GroupLayout.PREFERRED_SIZE, 272, GroupLayout.PREFERRED_SIZE)
-					.addGap(2))
-				.addComponent(status_panel, GroupLayout.DEFAULT_SIZE, 1100, Short.MAX_VALUE)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(tools_panel, GroupLayout.PREFERRED_SIZE, 106, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(canvas_panel, GroupLayout.DEFAULT_SIZE, 976, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(secondary_panel, GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)))
+						.addComponent(status_panel, GroupLayout.DEFAULT_SIZE, 1484, Short.MAX_VALUE))
+					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(secondary_panel, GroupLayout.PREFERRED_SIZE, 661, GroupLayout.PREFERRED_SIZE)
-						.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
-							.addComponent(separator_1, Alignment.LEADING)
-							.addComponent(tools_panel, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 660, Short.MAX_VALUE))
-						.addComponent(canvas_panel, GroupLayout.PREFERRED_SIZE, 662, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addComponent(canvas_panel, GroupLayout.DEFAULT_SIZE, 867, Short.MAX_VALUE)
+						.addGroup(groupLayout.createSequentialGroup()
+							.addComponent(users_panel, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(secondary_panel, GroupLayout.PREFERRED_SIZE, 625, GroupLayout.PREFERRED_SIZE))
+						.addComponent(tools_panel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(status_panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(6))
+					.addComponent(status_panel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
 		);
+		
+		JLabel lblUsersConected = new JLabel("Users conected:");
+		lblUsersConected.setForeground(Color.WHITE);
+		lblUsersConected.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
+		
+		lblUsers = new JLabel("4");
+		lblUsers.setForeground(Color.WHITE);
+		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
+		
+		list_client = new JList();
+		GroupLayout gl_users_panel = new GroupLayout(users_panel);
+		gl_users_panel.setHorizontalGroup(
+			gl_users_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_users_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lblUsersConected)
+					.addGap(13)
+					.addComponent(lblUsers)
+					.addContainerGap(221, Short.MAX_VALUE))
+				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+		);
+		gl_users_panel.setVerticalGroup(
+			gl_users_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_users_panel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_users_panel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblUsers)
+						.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))
+		);
+		users_panel.setLayout(gl_users_panel);
 		canvas_panel.setLayout(new BorderLayout(0, 0));
 		
-		separator_2 = new JSeparator();
-		
 		JTextArea chatArea = new JTextArea();
-		chatArea.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		chatArea.setFont(new Font("Arial Unicode MS", Font.PLAIN, 13));
 		chatArea.setEditable(false);
 		
 		textField = new JTextField();
 		textField.setColumns(10);
 		
 		JButton btnSend = new JButton("Send");
+		btnSend.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		btnSend.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 			}
 		});
 		
-		JTextArea textArea_1 = new JTextArea();
-		textArea_1.setEditable(false);
+		lbl_chat = new JLabel("Chat");
+		lbl_chat.setForeground(Color.WHITE);
+		lbl_chat.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		GroupLayout gl_secondary_panel = new GroupLayout(secondary_panel);
 		gl_secondary_panel.setHorizontalGroup(
-			gl_secondary_panel.createParallelGroup(Alignment.TRAILING)
-				.addGroup(Alignment.LEADING, gl_secondary_panel.createSequentialGroup()
-					.addComponent(textField, GroupLayout.PREFERRED_SIZE, 201, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnSend)
-					.addGap(3))
-				.addGroup(gl_secondary_panel.createSequentialGroup()
-					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(chatArea, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
-						.addComponent(separator_2, GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE))
-					.addContainerGap())
-				.addGroup(Alignment.LEADING, gl_secondary_panel.createSequentialGroup()
-					.addComponent(textArea_1, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
-					.addContainerGap())
-		);
-		gl_secondary_panel.setVerticalGroup(
 			gl_secondary_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_secondary_panel.createSequentialGroup()
-					.addComponent(textArea_1, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap()
+					.addComponent(textField, GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 72, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap())
+				.addComponent(chatArea, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+				.addGroup(gl_secondary_panel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lbl_chat, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(261, Short.MAX_VALUE))
+		);
+		gl_secondary_panel.setVerticalGroup(
+			gl_secondary_panel.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_secondary_panel.createSequentialGroup()
 					.addGap(12)
-					.addComponent(separator_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addComponent(lbl_chat, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 308, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(textField, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
-						.addComponent(btnSend)))
+					.addComponent(chatArea, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_secondary_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(textField, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
 		);
 		secondary_panel.setLayout(gl_secondary_panel);
 		
@@ -223,94 +280,209 @@ public class WhiteBoardInterface {
 		
 		separator_5 = new JSeparator();
 		
-		JButton btnBrush = new JButton("Brush");
+		JButton btnFreeDraw = new JButton("");
+		btnFreeDraw.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-pencil-drawing-32.png")));
 		
-//		Icon warnIcon = new ImageIcon("Line.bmp");
-		JButton btnLine = new JButton("Line");
-//		btnLine.setText("Line");
-//		
+		JButton btnLine = new JButton("");
+		btnLine.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-line-32.png")));
 		
 		JComboBox comboBoxSize = new JComboBox();
+		comboBoxSize.setFont(new Font("Segoe UI Light", Font.BOLD, 16));
 		
-		JButton btnSelSize = new JButton("Size");
-		
-		JButton btnCircle = new JButton("Circle");
+		JButton btnCircle = new JButton("");
+		btnCircle.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-circle-32.png")));
 		btnCircle.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		
-		btnRectangle = new JButton("Rectangle");
+		btnRectangle = new JButton("");
+		btnRectangle.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-rectangular-32.png")));
 		btnRectangle.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		
-		btnOval = new JButton("Oval");
+		btnOval = new JButton("");
+		btnOval.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-oval-32.png")));
 		btnOval.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		
-		btnEraser = new JButton("Eraser");
-		btnEraser.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		btnEraser = new JButton("");
+		btnEraser.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-eraser-32.png")));
+		btnEraser.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		
-		btnColor = new JButton("Color");
+		btnMoreColor = new JButton("");
+		btnMoreColor.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-more-32.png")));
+		btnMoreColor.setFont(new Font("Tahoma", Font.PLAIN, 13));
+		btnMoreColor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
 		
 		btnClear = new JButton("Clear");
+		btnClear.setFont(new Font("Arial Unicode MS", Font.PLAIN, 16));
 		
-		btnNewButton = new JButton("Text");
+		btnText = new JButton("");
+		btnText.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-type-32.png")));
+		btnText.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		
-		JTextArea textArea = new JTextArea();
-		textArea.setLineWrap(true);
+		btnColor1 = new JButton("");
+		btnColor1.setOpaque(false);
+		btnColor1.setBackground(Color.BLACK);
+
+			
+		textField_inputCanvas = new JTextField();
+		textField_inputCanvas.setColumns(10);
+		
+		lblCurrentColor = new JLabel("");
+		lblCurrentColor.setOpaque(true);
+		lblCurrentColor.setBackground(Color.ORANGE);
+		
+		btnColor2 = new JButton("");
+		btnColor2.setOpaque(false);
+		btnColor2.setBackground(Color.GRAY);
+		
+		btnColor3 = new JButton("");
+		btnColor3.setOpaque(false);
+		btnColor3.setBackground(Color.RED);
+		
+		btnColor4 = new JButton("");
+		btnColor4.setOpaque(false);
+		btnColor4.setBackground(Color.PINK);
+		
+		btnColor5 = new JButton("");
+		btnColor5.setOpaque(false);
+		btnColor5.setBackground(new Color(128, 0, 0));
+		
+		btnColor6 = new JButton("");
+		btnColor6.setOpaque(false);
+		btnColor6.setBackground(Color.ORANGE);
+		
+		btnColor7 = new JButton("");
+		btnColor7.setOpaque(false);
+		btnColor7.setBackground(Color.GREEN);
+		
+		btnColor8 = new JButton("");
+		btnColor8.setOpaque(false);
+		btnColor8.setBackground(Color.YELLOW);
+		
+		btnColor9 = new JButton("");
+		btnColor9.setOpaque(false);
+		btnColor9.setBackground(Color.BLUE);
+		
+		btnColor10 = new JButton("");
+		btnColor10.setOpaque(false);
+		btnColor10.setBackground(Color.CYAN);
 		GroupLayout gl_tools_panel = new GroupLayout(tools_panel);
 		gl_tools_panel.setHorizontalGroup(
 			gl_tools_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addContainerGap()
 					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnLine, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnRectangle, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnBrush, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(comboBoxSize, Alignment.TRAILING, 0, 88, Short.MAX_VALUE)
-						.addComponent(btnSelSize, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(separator_3, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnEraser, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnOval, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnNewButton, GroupLayout.PREFERRED_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnClear, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(btnColor, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(separator_4, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
-						.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 85, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addGap(12)
+							.addGroup(gl_tools_panel.createParallelGroup(Alignment.TRAILING)
+								.addComponent(textField_inputCanvas, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnOval, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnRectangle, GroupLayout.PREFERRED_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnCircle, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnLine, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(comboBoxSize, 0, 84, Short.MAX_VALUE)
+								.addComponent(btnEraser, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnFreeDraw, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(separator_3, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
+								.addComponent(btnText, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addGap(25)
+							.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addComponent(btnColor3, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor4, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+								.addGroup(gl_tools_panel.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor1, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(separator_4, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(separator_5, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(lblCurrentColor, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(gl_tools_panel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(btnMoreColor, GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE))
+						.addGroup(Alignment.TRAILING, gl_tools_panel.createSequentialGroup()
+							.addGap(11)
+							.addComponent(btnClear, GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)))
 					.addContainerGap())
 		);
 		gl_tools_panel.setVerticalGroup(
-			gl_tools_panel.createParallelGroup(Alignment.LEADING)
+			gl_tools_panel.createParallelGroup(Alignment.TRAILING)
 				.addGroup(gl_tools_panel.createSequentialGroup()
-					.addGap(21)
-					.addComponent(btnBrush)
+					.addContainerGap()
+					.addComponent(btnFreeDraw)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnEraser, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
-					.addGap(8)
-					.addComponent(comboBoxSize, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnEraser)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnSelSize)
+					.addComponent(comboBoxSize, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(separator_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(16)
-					.addComponent(btnCircle)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnLine, GroupLayout.PREFERRED_SIZE, 37, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnRectangle, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnCircle, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnOval, GroupLayout.PREFERRED_SIZE, 23, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnRectangle, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnLine, GroupLayout.PREFERRED_SIZE, 43, GroupLayout.PREFERRED_SIZE)
+					.addComponent(btnOval)
+					.addGap(8)
+					.addComponent(btnText, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnNewButton)
-					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-					.addComponent(textArea, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(textField_inputCanvas, GroupLayout.PREFERRED_SIZE, 114, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(separator_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnColor)
+					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnColor2, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor1, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnClear)
+					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnColor3, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor4, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnColor6, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor5, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnColor8, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor7, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_tools_panel.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnColor10, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnColor9, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(btnMoreColor, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblCurrentColor, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addComponent(separator_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addGap(108))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(btnClear, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+					.addGap(49))
 		);
 		tools_panel.setLayout(gl_tools_panel);
 		frmSharedWhitboard.getContentPane().setLayout(groupLayout);

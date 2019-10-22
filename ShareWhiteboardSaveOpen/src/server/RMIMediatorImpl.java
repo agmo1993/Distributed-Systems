@@ -1,6 +1,12 @@
 package server;
 
-import java.util.Vector; 
+import java.util.Vector;
+
+import javax.swing.JOptionPane;
+
+import remote.Identity;
+import remote.RMICollaborator;
+import remote.RMIMediator;
 
 import java.util.Hashtable; 
 import java.util.Enumeration;
@@ -36,6 +42,18 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	  int max = -1;    
 	  boolean found = true;    
 	  Enumeration x;
+	  Object[] options = {"OK", "Cancel"};
+	  int n = JOptionPane.showOptionDialog(null,
+	      "Would you like to save the canvas before creating a new one?",
+	      "Save Canvas",
+	      JOptionPane.YES_NO_OPTION,
+	      JOptionPane.QUESTION_MESSAGE,
+	      null,
+	      options,
+	      options[1]);				  
+	  if (n == 0) {
+		  return null;
+	  } 
 	  synchronized (idList) {       
 		  x = idList.elements();    
 		  }    
@@ -145,7 +163,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	  return success;  
 	  }
   
-  public boolean broadcastPaint(Identity from, String shape, Color col, MouseEvent e, int X, int Y) throws RemoteException, IOException {
+  public boolean broadcastPaint(Identity from, String shape, Color col, MouseEvent e, int X, int Y, int brushSize) throws RemoteException, IOException {
 	  boolean success = true;    
 	  Enumeration ids;    
 	  synchronized (clients) {      
@@ -159,7 +177,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  }      
 		  synchronized (target) {
 			  if (!(target.getIdentity().equals(from))) {
-				  if (target == null ||!target.notifyPaint(shape, col, e, X, Y)) {
+				  if (target == null ||!target.notifyPaint(shape, col, e, X, Y, brushSize)) {
 					  success = false;        
 					  System.out.print(success);
 					  }      
@@ -191,6 +209,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   public static void main(String argv[]) {    
 	  // Install a security manager    System.setSecurityManager(new RMISecurityManager());
     try {      
+    	RMIMediator foo = new RMIMediatorImpl();          	
     	String name = "TheMediator";      
     	System.out.println("Registering RMIMediatorImpl as \""+ name + "\"");      
     	RMIMediator mediator = new RMIMediatorImpl();      
