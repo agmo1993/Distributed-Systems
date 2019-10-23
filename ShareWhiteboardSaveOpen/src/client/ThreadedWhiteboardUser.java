@@ -244,6 +244,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				e1.printStackTrace();
 			}
 		  }
+		else{
+			
+		}
 		}
 		@Override
 		public void windowClosed(WindowEvent e) {}
@@ -933,8 +936,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    
 		    addMouseListener(new MouseAdapter() {
 		    	public void mouseReleased(MouseEvent e) {
-		    		int shapeWidth = Math.abs(currentX - oldX);
-		    		int shapeHeight = Math.abs(currentY - oldY);
+//		    		int shapeWidth = Math.abs(currentX - oldX);
+//		    		int shapeHeight = Math.abs(currentY - oldY);
+		    		int shapeWidth = currentX - oldX;
+		    		int shapeHeight = currentY - oldY;
 			    	  if((freeHandState == false) & (lineState == true)){
 				        	g2.setPaint(col);
 					        g2.drawLine(oldX, oldY, currentX, currentY);
