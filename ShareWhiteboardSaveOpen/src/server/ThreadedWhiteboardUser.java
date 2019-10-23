@@ -4,6 +4,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.io.ByteArrayOutputStream;
@@ -25,6 +27,7 @@ import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -78,7 +81,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JPanel users_panel;
 	protected JLabel lblUsersConected;
 	protected JLabel lblUsers;
-	protected JList list_client;
+	protected JList<String> list_client;
 
 	protected JTextField textField;
 	protected JButton btnSend;
@@ -142,7 +145,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
-	   
+	
+	protected DefaultListModel<String> currentUsers;
+	
     //***********************
     
 	ActionListener actionListener = new ActionListener() {
@@ -236,6 +241,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				try {
 					buildUI();
 					frmSharedWhitboard.setVisible(true);
+					broadcastUsers();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -361,11 +367,14 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblUsersConected.setForeground(Color.WHITE);
 		lblUsersConected.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 
-		lblUsers = new JLabel("X");
+		lblUsers = new JLabel();
 		lblUsers.setForeground(Color.WHITE);
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
-		list_client = new JList();
+		currentUsers = new DefaultListModel<String>();
+		list_client = new JList<String>(currentUsers);
+		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
+		//lblUsers.setText(""+ list_client.getComponentCount());
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -733,6 +742,33 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		success = drawArea.remotePaintBI(image);
 		return success;
 	}
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException { 
+		currentUsers.removeAllElements();
+		int currentUsersSize = 0;
+		for (String temp : clients) {
+			currentUsers.addElement(temp);
+			System.out.println("model"+currentUsers);
+			currentUsersSize ++;
+		}
+//		list_client = new JList<String>(currentUsers);
+		lblUsers.setText(""+currentUsersSize);
+		return true;
+	}
+	
+//	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+//		System.out.println("HERE1");
+//		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
+////		currentUsers.removeAllElements();
+//		
+//		for (String temp : clients) {
+//			currentUsers.addElement(temp);
+//			//System.out.println(currentUsers);
+//		}
+////		list_client.removeAll();
+//		list_client = new JList<String>(currentUsers);
+//		lblUsers.setText(""+list_client.getComponentCount());
+//		return true;
+//	}
 	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
@@ -771,25 +807,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return true;
 	}
 	
-	public void imageLoad() throws IOException {
-//		BufferedImage bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//	    ImageIO.write(bi, "png", bos);
-//	    byte [] data = bos.toByteArray();
-//	    System.out.println(data);
-//	    return data;
-		
-		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
-		File selectedFile = new File("images/images.png");
-		try {
-			
-			ImageIO.write(bi,"png",selectedFile);
-			lbl_status.setText("WhiteBoard Saved...");
-			isSaved = true;
-		}
-		catch (Exception e1) {
-			lbl_status.setText("Problems with saving!!!");
-		}
+	public byte[] imageLoad() throws IOException {
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ImageIO.write(bi, "jpg", bos );
+	    byte [] data = bos.toByteArray();
+	    return data;
 	}
 	
 	

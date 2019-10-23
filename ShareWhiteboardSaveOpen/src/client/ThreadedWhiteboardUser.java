@@ -4,14 +4,16 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
@@ -24,8 +26,10 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -144,6 +148,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
+	
+	protected DefaultListModel<String> currentUsers;
 	   
     //***********************
     
@@ -216,7 +222,28 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		public void windowDeactivated(WindowEvent e) {}
 		@Override
 		public void windowClosing(WindowEvent e) {
-			drawArea.closeCanvas();	
+		Object[] options = {"Yes", "No"};
+		int n = JOptionPane.showOptionDialog(null,
+		      "Are you sure you would like to exit?",
+		      "Close Canvas",
+		      JOptionPane.YES_NO_OPTION,
+		      JOptionPane.QUESTION_MESSAGE,
+		      null,
+		      options,
+		      options[1]);
+		if (n==0) {
+			try {
+				System.out.println(mediator.remove(getIdentity()));
+				broadcastUsers();
+				//drawArea.closeCanvas();
+			} catch (RemoteException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		  }
 		}
 		@Override
 		public void windowClosed(WindowEvent e) {}
@@ -232,12 +259,45 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		helper.start();
 	}
 	
+	public byte[] imageLoad() throws IOException {
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ImageIO.write(bi, "png", bos );
+	    bos.flush();
+	    byte [] data = bos.toByteArray();
+	    return data;
+	}
+	
 	protected void startUI() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					buildUI();
+//					byte[] data = mediator.presentImage();
+//					System.out.println(data);
+//				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+//				    ImageInputStream imgIn = ImageIO.createImageInputStream(bis);
+////					BufferedImage bImage2;
+//					Image bImage2 = ImageIO.read(new File("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-circle-32.png"));
+//					currentImage = bImage2;
+//					System.out.println("bis: "+bis);
+//					System.out.println("imgIn: "+imgIn);
+//					System.out.println("bImage2: "+bImage2);
+//					System.out.println("currentImage: "+currentImage);
+//					if (currentImage != null) {
+//						drawArea.g2.drawImage(currentImage,0,0,null);
+//					    drawArea.repaint();
+//						frmSharedWhitboard.setVisible(true);
+//					}
+////				    drawArea.g2.drawImage(currentImage,0,0,null);
+////				    drawArea.repaint();
+					broadcastUsers();
 					frmSharedWhitboard.setVisible(true);
+					
+//					else {
+//						System.out.println("Current Image is Null!");
+//					}
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -368,7 +428,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblUsers.setForeground(Color.WHITE);
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
-		list_client = new JList();
+		currentUsers = new DefaultListModel<String>();
+		list_client = new JList<String>(currentUsers);
+		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -737,6 +799,35 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	
+	
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException { 
+		currentUsers.removeAllElements();
+		int currentUsersSize = 0;
+		for (String temp : clients) {
+			currentUsers.addElement(temp);
+			System.out.println("model"+currentUsers);
+			currentUsersSize ++;
+		}
+//		list_client = new JList<String>(currentUsers);
+		lblUsers.setText(""+currentUsersSize);
+		return true;
+	}
+	
+//	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+//		System.out.println("HERE");
+//		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
+////		currentUsers.removeAllElements();
+//		
+//		for (String temp : clients) {
+//			currentUsers.addElement(temp);
+//			//System.out.println(currentUsers);
+//		}
+////		list_client.removeAll();
+//		list_client = new JList<String>(currentUsers);
+//		lblUsers.setText(""+list_client.getComponentCount());
+//		return true;
+//	}
+	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
 		chatArea.append("\n" + src.getName() + ": " + msg);
@@ -790,32 +881,26 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
 		    
-			try {
+//			try {
 //				byte[] data = mediator.presentImage();
-//			    InputStream bis = new ByteArrayInputStream(data);
-//				Image bImage2 = ImageIO.read(bis);
-//				System.out.println(data);
-				File filePath = new File("images/images.png");
-				Image imageInput = ImageIO.read(filePath);
-				//drawArea.image = imageInput;
-//				BufferedImage bi = (BufferedImage) imageInput;
-//				Graphics g = bi.createGraphics();
-//				clear();
-				g2.drawImage(imageInput,0,0,null);
-			    repaint();
-			} catch (IOException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
-			catch (NullPointerException e) {
-				System.out.println(e.getMessage());
-			}
+//			    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+//				BufferedImage bImage2;
+//				bImage2 = ImageIO.read(bis);
+//				currentImage = bImage2;
+//			    g2.drawImage(currentImage,0,0,null);
+//			    repaint();
+//			} catch (IOException e2) {
+//				// TODO Auto-generated catch block
+//				e2.printStackTrace();
+//			}
 			
 		    addMouseListener(new MouseAdapter() {
 		      public void mousePressed(MouseEvent e) {
 		        // save coord x,y when mouse is pressed
 		        oldX = e.getX();
 		        oldY = e.getY();
+		        
+				
 		      }
 		    });
 		    

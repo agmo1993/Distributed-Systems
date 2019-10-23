@@ -3,7 +3,10 @@ package server;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.io.IOException; 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import javax.swing.JFrame;
@@ -103,6 +106,14 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		}   
 		return success;  
 	}
+	public boolean broadcastUsers()throws IOException, RemoteException {
+		boolean success = false;
+		if (mediator != null) {
+			success = mediator.broadcastUsers();
+			System.out.println("Sent to mediator broadcastUsers");
+		}
+		return success;
+	}
 
 	public boolean broadcast(String tag, Object data)throws IOException, RemoteException {    
 		boolean success = false;    
@@ -116,7 +127,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		boolean success = false;    
 		if (mediator != null) {      
 			success = mediator.broadcastPaint(getIdentity(),shape, col, e, X, Y, brushSize);    
-			System.out.println("Sent to mediator");
+			System.out.println("Sent to mediator broadcastPaint");
 			}
 		
 		return success;  
@@ -146,6 +157,10 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		System.out.println("Got message: \"" + tag + " " + data + "\"" + " from " + src.getName());    
 		return true;  	
 	}
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+		System.out.println("Got message of clients");    
+		return true;  	
+	}
 
 	public static void main(String argv[]) {    // Install a security manager       
 		try {      
@@ -165,7 +180,8 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return false;
 	}
 	@Override
-	public void imageLoad() throws IOException {
+	public byte[] imageLoad() throws IOException {
 		// TODO Auto-generated method stub
+		return null;
 	}
 }

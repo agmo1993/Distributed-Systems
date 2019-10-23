@@ -9,7 +9,8 @@ import remote.Identity;
 import remote.RMICollaborator;
 import remote.RMIMediator;
 
-import java.util.Hashtable; 
+import java.util.Hashtable;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -27,14 +28,15 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	private static Enumeration idlistnow;
 	Hashtable clients = new Hashtable();  
 	Vector idList = new Vector();
-	byte[] currentImage = null;
-	Identity firstMember;
+	ArrayList<String> usersArrayList = new ArrayList<String>();
+	byte[] currentImage;
 	public RMIMediatorImpl() throws RemoteException {    
 		super();  }
 	
   public boolean register(Identity i, RMICollaborator c) throws RemoteException {    
 	  System.out.println("Registering member " + i.getId()+ " as " + c.getIdentity().getName());
 	  clients.put(i, c);
+	  usersArrayList.add(c.getIdentity().getName());
 	  
 	  return true;  
 	  }
@@ -67,16 +69,13 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 		  if (n == 1) {
 			  return null;
 		  }
-		  else if (n==0) {
-			
-			Enumeration ids = clients.keys();
+		  else {
+			RMICollaborator target = null;  
+			Enumeration ids = clients.keys(); 
 			Identity i = (Identity) ids.nextElement();
-			RMICollaborator target = null;
-			target = (RMICollaborator)clients.get(i);   
-			System.out.print(target);
+			target = (RMICollaborator) clients.get(i);
 			try {
-//			currentImage =
-			target.imageLoad();
+			currentImage = target.imageLoad();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -96,10 +95,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  }    
 		  }
   	
-	  Identity newId = new Identity(max + 1);
-	  if (max+ 1 == 0) {
-		  this.firstMember = newId;
-	  }
+	  Identity newId = new Identity(max + 1);    
 	  synchronized (idList) {      
 		  idList.addElement(newId);    
     		}   
@@ -112,13 +108,8 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   
   public boolean remove(Identity i) throws RemoteException {    
 	  boolean success = true;    
-	  synchronized (idList) {      
-		  if (idList.removeElement(i) && clients.remove(i) != null) {        
-			  success = true;      
-			  }      else {        
-				  success = false;      
-				  }    
-		  }    
+	  usersArrayList.remove(i.getName());
+	  System.out.println(clients.get(i));
 	  return success;  
 	  }
   
@@ -196,6 +187,44 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 		  }    
 	  return success;  
 	  }
+  public boolean broadcastUsers() throws RemoteException, IOException {
+	  boolean success = true;    
+	  Enumeration ids;
+//	  ArrayList<String> usersArrayList = new ArrayList<String>();
+	  synchronized (clients) {      
+		  ids = clients.keys();    
+		  }    
+	  RMICollaborator target = null;
+//	  while (ids.hasMoreElements()) {
+//		  Identity i = (Identity)ids.nextElement();
+//		  target = (RMICollaborator)clients.get(i); 
+//		  usersArrayList.add(target.getIdentity().getName());
+////	  }
+//	  while (ids.hasMoreElements()) {      
+//		  Identity i = (Identity)ids.nextElement();
+//		  synchronized (clients) {        
+//			  target = (RMICollaborator)clients.get(i);
+//			  usersArrayList.add(target.getIdentity().getName());
+//			  }
+//	  }
+	  
+	  synchronized (clients) {      
+		  ids = clients.keys();    
+		  }    
+	  while (ids.hasMoreElements()) {      
+		  Identity i = (Identity)ids.nextElement();
+		  synchronized (clients) {        
+			  target = (RMICollaborator)clients.get(i);
+			  synchronized (target) {        
+				  if (target == null ||!target.notifyUsers(usersArrayList)) {
+					  success = false;        
+					  System.out.print(success);
+					  }      
+				  }    
+			  }
+	  }
+	  return success;  
+	}
   
   public boolean broadcastPaint(Identity from, String shape, Color col, MouseEvent e, int X, int Y, int brushSize) throws RemoteException, IOException {
 	  boolean success = true;    
