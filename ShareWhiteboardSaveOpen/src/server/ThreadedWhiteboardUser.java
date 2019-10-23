@@ -110,6 +110,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected JButton btnColor8;
 	protected JButton btnColor9;
 	protected JButton btnColor10;
+	protected JButton btn_kick;
 	protected JLabel lblCurrentColor;
 	protected JLabel lbl_status;
 	protected JLabel lbl_chat;
@@ -207,26 +208,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	      	
 	    }
 	  };
-	  
-	  WindowListener windowListener = new WindowListener() {
-		@Override
-		public void windowOpened(WindowEvent e) {}
-		@Override
-		public void windowIconified(WindowEvent e) {}
-		@Override
-		public void windowDeiconified(WindowEvent e) {}
-		@Override
-		public void windowDeactivated(WindowEvent e) {}
-		@Override
-		public void windowClosing(WindowEvent e) {
-			drawArea.closeCanvas();	
-		}
-		@Override
-		public void windowClosed(WindowEvent e) {}
-		@Override
-		public void windowActivated(WindowEvent e) {}
-	};
-	
+	  	
 	public ThreadedWhiteboardUser(String name, Color color, String host, String mname) throws RemoteException {
 		super(name, host, mname);
 		getIdentity().setProperty("color", color);
@@ -254,12 +236,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected void buildUI() {
 		
 		frmSharedWhitboard = new JFrame();
-		frmSharedWhitboard.setTitle("Shared Whiteboard");
+		frmSharedWhitboard.setTitle("Shared Whiteboard (Administrator)");
 		frmSharedWhitboard.setIconImage(Toolkit.getDefaultToolkit().getImage(WhiteBoardInterface.class.getResource("/View/icons8-paint-palette-32.png")));
 		frmSharedWhitboard.setBounds(100, 100, 1526, 998);
 		frmSharedWhitboard.getContentPane().setBackground(new Color(12,92,117));
-		//frmSharedWhitboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmSharedWhitboard.addWindowListener(windowListener);
+		frmSharedWhitboard.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frmSharedWhitboard.setResizable(false);
 		
 		//File menu creation
 		menuBar = new JMenuBar();
@@ -374,7 +356,10 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		currentUsers = new DefaultListModel<String>();
 		list_client = new JList<String>(currentUsers);
 		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
-		//lblUsers.setText(""+ list_client.getComponentCount());
+
+		btn_kick = new JButton("Kick");
+		btn_kick.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-combat-32.png")));
+		btn_kick.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -384,17 +369,24 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					.addComponent(lblUsersConected)
 					.addGap(13)
 					.addComponent(lblUsers)
-					.addContainerGap(221, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+					.addComponent(btn_kick)
+					.addGap(10))
 				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 		);
 		gl_users_panel.setVerticalGroup(
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_users_panel.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_users_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblUsers)
-						.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_users_panel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_users_panel.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(gl_users_panel.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblUsers)
+								.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(gl_users_panel.createSequentialGroup()
+							.addGap(9)
+							.addComponent(btn_kick, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)))
+					.addGap(10)
 					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))
 		);
 		users_panel.setLayout(gl_users_panel);
@@ -743,13 +735,32 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException { 
+		currentUsers.removeAllElements();
+		int currentUsersSize = 0;
 		for (String temp : clients) {
 			currentUsers.addElement(temp);
 			System.out.println("model"+currentUsers);
+			currentUsersSize ++;
 		}
-		lblUsers.setText(""+list_client.getComponentCount());
+//		list_client = new JList<String>(currentUsers);
+		lblUsers.setText(""+currentUsersSize);
 		return true;
 	}
+	
+//	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+//		System.out.println("HERE1");
+//		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
+////		currentUsers.removeAllElements();
+//		
+//		for (String temp : clients) {
+//			currentUsers.addElement(temp);
+//			//System.out.println(currentUsers);
+//		}
+////		list_client.removeAll();
+//		list_client = new JList<String>(currentUsers);
+//		lblUsers.setText(""+list_client.getComponentCount());
+//		return true;
+//	}
 	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
@@ -1308,12 +1319,30 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				  if (n == 0) {
 					  saveAsCanvas();
 					  isSaved = true;
-					  frmSharedWhitboard.dispose();
+					  try {
+						broadcastExit();
+						frmSharedWhitboard.dispose();
+						  System.exit(0);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				  } else if(n == 1) {
-					  frmSharedWhitboard.dispose();
+					  try {
+						  broadcastExit();
+							frmSharedWhitboard.dispose();
+							System.exit(0);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 				  } else {}
 			  }else {
-				  frmSharedWhitboard.dispose();
+				  try {
+					  broadcastExit();
+						frmSharedWhitboard.dispose();
+						  System.exit(0);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 			  }
 		  }
 		}

@@ -18,6 +18,7 @@ public interface RMIMediator extends Remote {
 	public boolean broadcast(Identity from, String mtag, Object data)throws IOException, RemoteException; 
 	public boolean broadcastPaint(Identity from, String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException;
 	public boolean broadcastBI(BufferedImage image, Identity from) throws RemoteException, IOException;
+	public boolean exitMediator() throws RemoteException, IOException;
 	public byte[] presentImage() throws RemoteException;
 	public boolean broadcastUsers()throws RemoteException, IOException;
 	}

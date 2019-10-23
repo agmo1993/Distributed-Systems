@@ -28,6 +28,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	private static Enumeration idlistnow;
 	Hashtable clients = new Hashtable();  
 	Vector idList = new Vector();
+	ArrayList<String> usersArrayList = new ArrayList<String>();
 	byte[] currentImage;
 	public RMIMediatorImpl() throws RemoteException {    
 		super();  }
@@ -35,6 +36,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   public boolean register(Identity i, RMICollaborator c) throws RemoteException {    
 	  System.out.println("Registering member " + i.getId()+ " as " + c.getIdentity().getName());
 	  clients.put(i, c);
+	  usersArrayList.add(c.getIdentity().getName());
 	  
 	  return true;  
 	  }
@@ -69,6 +71,9 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 		  }
 		  else {
 			RMICollaborator target = null;  
+			Enumeration ids = clients.keys(); 
+			Identity i = (Identity) ids.nextElement();
+			target = (RMICollaborator) clients.get(i);
 			try {
 			currentImage = target.imageLoad();
 			} catch (IOException e) {
@@ -103,13 +108,8 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   
   public boolean remove(Identity i) throws RemoteException {    
 	  boolean success = true;    
-	  synchronized (idList) {      
-		  if (idList.removeElement(i) && clients.remove(i) != null) {        
-			  success = true;      
-			  }      else {        
-				  success = false;      
-				  }    
-		  }    
+	  usersArrayList.remove(i.getName());
+	  System.out.println(clients.get(i));
 	  return success;  
 	  }
   
@@ -190,7 +190,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   public boolean broadcastUsers() throws RemoteException, IOException {
 	  boolean success = true;    
 	  Enumeration ids;
-	  ArrayList<String> usersArrayList = new ArrayList<String>();
+//	  ArrayList<String> usersArrayList = new ArrayList<String>();
 	  synchronized (clients) {      
 		  ids = clients.keys();    
 		  }    
@@ -199,20 +199,30 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 //		  Identity i = (Identity)ids.nextElement();
 //		  target = (RMICollaborator)clients.get(i); 
 //		  usersArrayList.add(target.getIdentity().getName());
+////	  }
+//	  while (ids.hasMoreElements()) {      
+//		  Identity i = (Identity)ids.nextElement();
+//		  synchronized (clients) {        
+//			  target = (RMICollaborator)clients.get(i);
+//			  usersArrayList.add(target.getIdentity().getName());
+//			  }
 //	  }
+	  
+	  synchronized (clients) {      
+		  ids = clients.keys();    
+		  }    
 	  while (ids.hasMoreElements()) {      
 		  Identity i = (Identity)ids.nextElement();
 		  synchronized (clients) {        
 			  target = (RMICollaborator)clients.get(i);
-			  usersArrayList.add(target.getIdentity().getName());
-			  }      
-		  synchronized (target) {        
-			  if (target == null ||!target.notifyUsers(usersArrayList)) {
-				  success = false;        
-				  System.out.print(success);
-				  }      
-			  }    
-		  }    
+			  synchronized (target) {        
+				  if (target == null ||!target.notifyUsers(usersArrayList)) {
+					  success = false;        
+					  System.out.print(success);
+					  }      
+				  }    
+			  }
+	  }
 	  return success;  
 	}
   
@@ -298,6 +308,31 @@ public boolean broadcastBI(BufferedImage image, Identity from) throws IOExceptio
 		  }
 	  }
 	  return success;
+}
+
+@Override
+public boolean exitMediator() throws RemoteException, IOException {
+	boolean success = true;    
+	  Enumeration ids;    
+	  synchronized (clients) {      
+		  ids = clients.keys();    
+		  }    
+	  RMICollaborator target = null;    
+	  while (ids.hasMoreElements()) {      
+		  Identity i = (Identity)ids.nextElement();      
+		  synchronized (clients) {        
+			  target = (RMICollaborator)clients.get(i);      
+			  }      
+		  synchronized (target) {
+					  if (target == null ||!target.exitCollaborator()) {
+						  success = false;        
+						  System.out.print(success);
+						  }         
+		  }
+	  }
+	  System.out.println("Shutting down each collaborator");
+	  System.exit(0);
+	  return success;  
 }
 	
 }

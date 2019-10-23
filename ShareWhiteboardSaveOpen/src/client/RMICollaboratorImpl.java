@@ -149,6 +149,11 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		System.out.println("Got message: \"" + tag + " " + data + "\"" + " from " + src.getName());    
 		return true;  	
 	}
+	public boolean exitCollaborator() throws RemoteException, IOException {
+		System.out.println("Exit the colaborator...");
+		System.exit(0);
+		return false;
+	}
 
 	public static void main(String argv[]) {    // Install a security manager       
 		try {      

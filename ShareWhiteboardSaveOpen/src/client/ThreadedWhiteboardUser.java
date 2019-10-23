@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,6 +26,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -59,7 +61,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
-	public BufferedImage currentImage;
+	public Image currentImage;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -146,6 +148,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
+	
+	protected DefaultListModel<String> currentUsers;
 	   
     //***********************
     
@@ -218,10 +222,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		public void windowDeactivated(WindowEvent e) {}
 		@Override
 		public void windowClosing(WindowEvent e) {
-			drawArea.closeCanvas();	
+
 		}
 		@Override
-		public void windowClosed(WindowEvent e) {}
+		public void windowClosed(WindowEvent e) {
+			
+		}
 		@Override
 		public void windowActivated(WindowEvent e) {}
 	};
@@ -234,12 +240,45 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		helper.start();
 	}
 	
+//	public byte[] imageLoad() throws IOException {
+//		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//	    ImageIO.write(bi, "png", bos );
+//	    bos.flush();
+//	    byte [] data = bos.toByteArray();
+//	    return data;
+//	}
+//	
 	protected void startUI() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					buildUI();
+//					byte[] data = mediator.presentImage();
+//					System.out.println(data);
+//				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+//				    ImageInputStream imgIn = ImageIO.createImageInputStream(bis);
+////					BufferedImage bImage2;
+//					Image bImage2 = ImageIO.read(new File("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-circle-32.png"));
+//					currentImage = bImage2;
+//					System.out.println("bis: "+bis);
+//					System.out.println("imgIn: "+imgIn);
+//					System.out.println("bImage2: "+bImage2);
+//					System.out.println("currentImage: "+currentImage);
+//					if (currentImage != null) {
+//						drawArea.g2.drawImage(currentImage,0,0,null);
+//					    drawArea.repaint();
+//						frmSharedWhitboard.setVisible(true);
+//					}
+////				    drawArea.g2.drawImage(currentImage,0,0,null);
+////				    drawArea.repaint();
+					broadcastUsers();
 					frmSharedWhitboard.setVisible(true);
+					
+//					else {
+//						System.out.println("Current Image is Null!");
+//					}
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -256,8 +295,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		frmSharedWhitboard.setIconImage(Toolkit.getDefaultToolkit().getImage(WhiteBoardInterface.class.getResource("/View/icons8-paint-palette-32.png")));
 		frmSharedWhitboard.setBounds(100, 100, 1526, 998);
 		frmSharedWhitboard.getContentPane().setBackground(new Color(12,92,117));
-		//frmSharedWhitboard.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmSharedWhitboard.addWindowListener(windowListener);
+		frmSharedWhitboard.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frmSharedWhitboard.setResizable(false);
+		//Comment
 		
 		//File menu creation
 		menuBar = new JMenuBar();
@@ -266,27 +306,30 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		mnFile = new JMenu("File");
 		mnFile.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		menuBar.add(mnFile);
-		mnFile.setEnabled(false);
 		
 		mntmNew = new JMenuItem("New");
 		mntmNew.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmNew);
 		mntmNew.addActionListener(actionListener);
+		mntmNew.setEnabled(false);
 		
 		mntmOpen = new JMenuItem("Open");
 		mntmOpen.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmOpen);
 		mntmOpen.addActionListener(actionListener);
+		mntmOpen.setEnabled(false);
 		
 		mntmSave = new JMenuItem("Save");
 		mntmSave.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSave);
 		mntmSave.addActionListener(actionListener);
+		mntmSave.setEnabled(false);
 		
 		mntmSaveAs = new JMenuItem("Save As...");
 		mntmSaveAs.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		mnFile.add(mntmSaveAs);
 		mntmSaveAs.addActionListener(actionListener);
+		mntmSaveAs.setEnabled(false);
 		
 		separator = new JSeparator();
 		mnFile.add(separator);
@@ -370,7 +413,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		lblUsers.setForeground(Color.WHITE);
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
-		list_client = new JList();
+		currentUsers = new DefaultListModel<String>();
+		list_client = new JList<String>(currentUsers);
+		list_client.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -738,17 +783,35 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		success = drawArea.remotePaintBI(image);
 		return success;
 	}
-	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
-		System.out.println("HERE");
-		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
-		list_client = new JList<String>(currentUsers);
+	
+	
+	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException { 
+		currentUsers.removeAllElements();
+		int currentUsersSize = 0;
 		for (String temp : clients) {
 			currentUsers.addElement(temp);
-			//System.out.println(currentUsers);
+			System.out.println("model"+currentUsers);
+			currentUsersSize ++;
 		}
-		lblUsers.setText(""+list_client.getComponentCount());
+//		list_client = new JList<String>(currentUsers);
+		lblUsers.setText(""+currentUsersSize);
 		return true;
 	}
+	
+//	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
+//		System.out.println("HERE");
+//		DefaultListModel<String> currentUsers = new DefaultListModel<String>();
+////		currentUsers.removeAllElements();
+//		
+//		for (String temp : clients) {
+//			currentUsers.addElement(temp);
+//			//System.out.println(currentUsers);
+//		}
+////		list_client.removeAll();
+//		list_client = new JList<String>(currentUsers);
+//		lblUsers.setText(""+list_client.getComponentCount());
+//		return true;
+//	}
 	
 	public boolean notify(String tag, String msg, Identity src) throws IOException, RemoteException {
 		// Print the message in the chat area.
@@ -803,24 +866,26 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
 		    
-			try {
-				byte[] data = mediator.presentImage();
-			    ByteArrayInputStream bis = new ByteArrayInputStream(data);
-				BufferedImage bImage2;
-				bImage2 = ImageIO.read(bis);
-				currentImage = bImage2;
-			    g2.drawImage(currentImage,0,0,null);
-			    repaint();
-			} catch (IOException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+//			try {
+//				byte[] data = mediator.presentImage();
+//			    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+//				BufferedImage bImage2;
+//				bImage2 = ImageIO.read(bis);
+//				currentImage = bImage2;
+//			    g2.drawImage(currentImage,0,0,null);
+//			    repaint();
+//			} catch (IOException e2) {
+//				// TODO Auto-generated catch block
+//				e2.printStackTrace();
+//			}
 			
 		    addMouseListener(new MouseAdapter() {
 		      public void mousePressed(MouseEvent e) {
 		        // save coord x,y when mouse is pressed
 		        oldX = e.getX();
 		        oldY = e.getY();
+		        
+				
 		      }
 		    });
 		    
@@ -1297,29 +1362,36 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  
 		  }
 		  
+		  public boolean exitCollaborator() throws RemoteException, IOException {
+				System.out.println("Exit by admin...");
+				frmSharedWhitboard.dispose();
+				System.exit(0);
+				return false;
+			}
+
+		  
 		  public void closeCanvas() {
-			  if(isNew) {
-				  frmSharedWhitboard.dispose();
-			  }else if(!isSaved) {
-				  Object[] options = {"Save", "Don't Save", "Cancel"};
-				  int n = JOptionPane.showOptionDialog(null,
-				      "Would you like to save the canvas before creating a new one?",
-				      "Save Canvas",
-				      JOptionPane.YES_NO_CANCEL_OPTION,
+				Object[] options = {"Yes", "No"};
+				int n = JOptionPane.showOptionDialog(null,
+				      "Are you sure you would like to exit?",
+				      "Close Canvas",
+				      JOptionPane.YES_NO_OPTION,
 				      JOptionPane.QUESTION_MESSAGE,
 				      null,
 				      options,
-				      options[2]);				  
-				  if (n == 0) {
-					  saveAsCanvas();
-					  isSaved = true;
-					  frmSharedWhitboard.dispose();
-				  } else if(n == 1) {
-					  frmSharedWhitboard.dispose();
-				  } else {}
-			  }else {
-				  frmSharedWhitboard.dispose();
-			  }
+				      options[1]);
+				if (n==1) {
+					try {
+						System.out.println(mediator.remove(getIdentity()));
+						broadcastUsers();
+						frmSharedWhitboard.dispose();
+						System.exit(0);
+					} catch (RemoteException e1) {
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				  }
 		  }
 		}
 }

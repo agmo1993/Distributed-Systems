@@ -114,6 +114,15 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		}
 		return success;
 	}
+	
+	public boolean broadcastExit()throws IOException, RemoteException {
+		boolean success = false;
+		if (mediator != null) {
+			success = mediator.exitMediator();
+			System.out.println("Sent to mediator exit command");
+		}
+		return success;
+	}
 
 	public boolean broadcast(String tag, Object data)throws IOException, RemoteException {    
 		boolean success = false;    
@@ -160,6 +169,11 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteException {    
 		System.out.println("Got message of clients");    
 		return true;  	
+	}
+	public boolean exitCollaborator() throws RemoteException, IOException {
+		System.out.println("Exit the colaborator...");
+		System.exit(0);
+		return false;
 	}
 
 	public static void main(String argv[]) {    // Install a security manager       
