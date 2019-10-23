@@ -3,6 +3,8 @@ package server;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import remote.Identity;
@@ -13,9 +15,11 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException; 
 import java.rmi.Remote; 
 import java.rmi.RemoteException;
@@ -24,7 +28,13 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 
+
+
+
+
+
 public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator {  
+	public BufferedImage bi;
 	private static Enumeration idlistnow;
 	Hashtable clients = new Hashtable();  
 	Vector idList = new Vector();
@@ -52,6 +62,21 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
   
   
   
+//  public void saveCurrentImage() {
+////	  ThreadedWhiteboardUser thrU = new ThreadedWhiteboardUser(name, color, host, mname)
+//	  bi = new BufferedImage(RMIMediatorImpl.drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+//		Graphics g = bi.createGraphics();
+//		drawArea.paint(g); 
+//		g.dispose();
+////		int returnValue = jfc.showSaveDialog(null);
+//		ImageIcon imageIcon = new ImageIcon(bi); 
+//
+//		File fileLoc = new File("/Users/macbook/ShareWhiteboardSaveOpen/src/images");
+//		
+//		ImageIO.write(bi,"png",fileLoc);
+//		
+//  }
+  
   public Identity newMember(String userRequest)  {    
 	  int max = -1;    
 	  boolean found = true;    
@@ -70,6 +95,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  return null;
 		  }
 		  else {
+//			  saveCurrentImage();
 			RMICollaborator target = null;  
 			Enumeration ids = clients.keys(); 
 			Identity i = (Identity) ids.nextElement();

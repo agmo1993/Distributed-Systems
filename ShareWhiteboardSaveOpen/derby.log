@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Wed Oct 23 22:29:32 AEDT 2019:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.15.1.3 - (1853019): instance a816c00e-016d-f861-0c34-000003a17820 
+on database directory /Users/macbook/ShareWhiteboardSaveOpen/server with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@55054057 
+Loaded from file:/Users/macbook/ShareWhiteboardSaveOpen/src/lib/derby.jar
+java.vendor=Oracle Corporation
+java.runtime.version=12.0.2+10
+user.dir=/Users/macbook/ShareWhiteboardSaveOpen
+os.name=Mac OS X
+os.arch=x86_64
+os.version=10.15
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

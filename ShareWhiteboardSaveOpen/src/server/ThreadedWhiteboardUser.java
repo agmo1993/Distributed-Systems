@@ -11,11 +11,18 @@ import java.util.Properties;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -148,6 +155,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	protected DefaultListModel<String> currentUsers;
 	
+	public static final String DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+	public static final String JDBC_URL = "jdbc:derby:server;create=true";
+	
+	public Connection conn;
+	
     //***********************
     
 	ActionListener actionListener = new ActionListener() {
@@ -240,6 +252,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			public void run() {
 				try {
 					buildUI();
+					drawArea.databaseFuncs();
 					frmSharedWhitboard.setVisible(true);
 					broadcastUsers();
 				} catch (Exception e) {
@@ -969,6 +982,100 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
+		
+		  public void saveCurrentImage() {
+//			  ThreadedWhiteboardUser thrU = new ThreadedWhiteboardUser(name, color, host, mname)
+			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+				Graphics g = bi.createGraphics();
+				drawArea.paint(g); 
+				g.dispose();
+//				int returnValue = jfc.showSaveDialog(null);
+				ImageIcon imageIcon = new ImageIcon(bi); 
+
+				File fileLoc = new File("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+				
+				try {
+					ImageIO.write(bi,"png",fileLoc);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		  }
+		  
+		  public void saveAsCanvas1() {
+			  
+			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+				Graphics g = bi.createGraphics();
+				drawArea.paint(g); 
+				g.dispose();
+				int returnValue = jfc.showSaveDialog(null);
+				ImageIcon imageIcon = new ImageIcon(bi); 
+
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					selectedFile = jfc.getSelectedFile();
+					try {
+						ImageIO.write(bi,"png",selectedFile);
+						lbl_status.setText("WhiteBoard Saved...");
+						isSaved = true;
+					}
+					catch (Exception e1) {
+						lbl_status.setText("Problems with saving!!!");
+					}
+				}
+		  }
+		
+		public void databaseFuncs() {
+			try {
+//				DriverManager.getConnection(DRIVER);
+				conn = DriverManager.getConnection(JDBC_URL);
+				if (conn != null) {
+					System.out.println("Connected to Database!");
+					//Creating the Statement
+				      Statement stmt = conn.createStatement();
+				      //Executing the statement
+//				      String createTable = "CREATE TABLE Tutorial2( "
+//				         + "Name VARCHAR(255), "
+//				         + "Type VARCHAR(50), "
+//				         + "Logo BLOB)";
+//				      stmt.execute(createTable);
+				      //Inserting values
+				      String query = "INSERT INTO Tutorial2(Name, Type, Logo) VALUES (?, ?, ?)";
+				      PreparedStatement pstmt = conn.prepareStatement(query);
+				      pstmt.setString(1, "JavaFX");
+				      pstmt.setString(2, "Java_library");
+				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-circle-32.png");
+				      pstmt.setBinaryStream(3, fin);
+				      pstmt.execute();
+
+				      pstmt.setString(1, "CoffeeScript");
+				      pstmt.setString(2, "scripting Language");
+				      fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-eraser-32.png");
+				      pstmt.setBinaryStream(3, fin);
+				      pstmt.execute();
+				      pstmt.setString(1, "Cassandra");
+				      pstmt.setString(2, "NoSQL database");
+				      fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-paint-palette-32.png");
+				      pstmt.setBinaryStream(3, fin);
+				      pstmt.execute();
+				      System.out.println("Data inserted");
+				      ResultSet rs = stmt.executeQuery("Select *from Tutorial2");
+				      while(rs.next()) {
+				         System.out.print("Name: "+rs.getString("Name")+", ");
+				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
+				         System.out.print("Logo: "+rs.getBlob("Logo"));
+				         System.out.println();
+				      }
+				}
+				
+			} catch(SQLException e) {
+//				System.out.println("Connection to Database Failed!");
+				System.out.println(e);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		 
 		  // now we create exposed methods
 		  public void clear() {
@@ -1007,6 +1114,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  }
 		  
 		  public void brush() {
+			  saveCurrentImage();
 			  if (col == Color.WHITE){
 				  col = Color.BLACK;
 			  }

@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -150,6 +153,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected static boolean isSaved = false;
 	
 	protected DefaultListModel<String> currentUsers;
+	
+	
 	   
     //***********************
     
@@ -231,7 +236,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      null,
 		      options,
 		      options[1]);
-		if (n==0) {
+		if (n==1) {
 			try {
 				System.out.println(mediator.remove(getIdentity()));
 				broadcastUsers();
@@ -245,7 +250,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			}
 		  }
 		else{
-			
+
 		}
 		}
 		@Override
@@ -276,6 +281,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			public void run() {
 				try {
 					buildUI();
+//					drawArea.databaseFuncs();
 //					byte[] data = mediator.presentImage();
 //					System.out.println(data);
 //				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -294,6 +300,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 //					}
 ////				    drawArea.g2.drawImage(currentImage,0,0,null);
 ////				    drawArea.repaint();
+//					drawArea.loadCurrentImage();
 					broadcastUsers();
 					frmSharedWhitboard.setVisible(true);
 					
@@ -883,6 +890,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		 
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
+//		    loadCurrentImage();
 		    
 //			try {
 //				byte[] data = mediator.presentImage();
@@ -1037,9 +1045,43 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		      // clear draw area
 		      clear();
+		      loadCurrentImage();
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
+		
+		public void loadCurrentImage() {
+			File fileLoc = new File("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+			Image imageInput;
+			try {
+				imageInput = ImageIO.read(fileLoc);
+				//drawArea.image = imageInput;
+				BufferedImage bi = (BufferedImage) imageInput;
+				Graphics g = bi.createGraphics();
+				clear();
+				g2.drawImage(imageInput,0,0,null);
+				repaint();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		
+//		public void databaseFuncs() {
+//			try {
+////				DriverManager.getConnection(DRIVER);
+//				conn = DriverManager.getConnection(JDBC_URL);
+//				if (conn != null) {
+//					System.out.println("Connected to Database!");
+//				}
+//				
+//			} catch(SQLException e) {
+////				System.out.println("Connection to Database Failed!");
+//				System.out.println(e);
+//			}
+//		}
 		 
 		  // now we create exposed methods
 		  public void clear() {
