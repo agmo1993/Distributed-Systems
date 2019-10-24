@@ -507,6 +507,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnClear = new JButton("Clear");
 		btnClear.setFont(new Font("Arial Unicode MS", Font.PLAIN, 16));
 		btnClear.addActionListener(actionListener);
+		btnClear.setEnabled(false);
 		
 		btnText = new JButton("");
 		btnText.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-type-32.png")));
@@ -768,12 +769,12 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	
 	public boolean exitCollaborator() throws RemoteException, IOException {
 		System.out.println("Exit by admin...");
+		frmSharedWhitboard.dispose();
 		JFrame frame = new JFrame();
 		JOptionPane.showMessageDialog(frame,
 			    "The admin has exited the program.",
 			    "Admin exit",
 			    JOptionPane.WARNING_MESSAGE);
-		frmSharedWhitboard.dispose();
 		//System.exit(0);
 		return false;
 	}
@@ -873,6 +874,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  // Mouse coordinates
 		  private int currentX, currentY, oldX, oldY;
 		  public int currentBrushsize;
+		  public boolean firstImage = true;
 		 
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
@@ -1016,6 +1018,24 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			isNew = false;
 			return true;
 		}
+		public void loadCurrentImage() {
+				File fileLoc = new File("G:\\My Drive\\Distributed Systems\\Group Project\\current.png");
+				Image imageInput;
+				try {
+					imageInput = ImageIO.read(fileLoc);
+					//drawArea.image = imageInput;
+					BufferedImage bi = (BufferedImage) imageInput;
+					Graphics g = bi.createGraphics();
+					clear();
+					g2.drawImage(imageInput,0,0,null);
+					repaint();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}
 
 		protected void paintComponent(Graphics g) {
 		    if (image == null) {
@@ -1026,6 +1046,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		      // clear draw area
 		      clear();
+		      
+		    }
+		    if(firstImage) {
+		    	loadCurrentImage();
+		    	firstImage = false;
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
@@ -1045,7 +1070,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  repaint();
 			  isSaved = false;
 			  isNew = true;
-			  //status.setText("Whiteboard Cleared");
+			  lbl_status.setText("Whiteboard Cleared");
 		  }
 		 
 		  public void setBrushSize() {
@@ -1358,10 +1383,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isSaved = false;
 			      isNew = false;
 			  }
-			  else if (shape.equals("text")){
-				  text();
+			  else if (shape.contentEquals("clear")){
+				  clear();
+			  }
+			  else{
+				  int shapeWidth = Math.abs(xPos - oldX);
 				  g2.setPaint(col);
-			      g2.drawRect(oldX, oldY, xPos, yPos);
+				  Font font = new Font("Serif", Font.PLAIN, shapeWidth);	 
+				  g2.setFont(font);
+			      g2.drawString(shape, oldX, oldY);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
