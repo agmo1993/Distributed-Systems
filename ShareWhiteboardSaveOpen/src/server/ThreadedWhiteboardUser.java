@@ -156,7 +156,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected DefaultListModel<String> currentUsers;
 	
 	public static final String DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
-	public static final String JDBC_URL = "jdbc:derby:server;create=true";
+	public static final String JDBC_URL = "jdbc:derby:currentImages;create=true";
 	
 	public Connection conn;
 	
@@ -252,7 +252,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			public void run() {
 				try {
 					buildUI();
+					
 					drawArea.databaseFuncs();
+//					getConnection();
 					frmSharedWhitboard.setVisible(true);
 					broadcastUsers();
 				} catch (Exception e) {
@@ -262,6 +264,29 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		});
 	}
 	
+	 public Connection getConnection()
+	    {
+	        if (conn != null) return conn;
+	        // get db, user, pass from settings file
+	        return getConnection(JDBC_URL);
+	    }
+
+	    private Connection getConnection(String jdbc_url)
+	    {
+	        try
+	        {
+//	            Class.forName(DRIVER);
+	            DriverManager.getConnection(DRIVER);
+	            
+	            conn=DriverManager.getConnection(jdbc_url);
+	        }
+	        catch(Exception e)
+	        {
+	            e.printStackTrace();
+	        }
+
+	        return conn;        
+	    }
 	//***********************
 	
 	protected void buildUI() {
@@ -983,6 +1008,63 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    g.drawImage(image, 0, 0, null);
 		  }
 		
+		public void databaseFuncs() {
+			try {
+				
+				Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+				String dbUrl = "jdbc:derby://localhost/createTable;create=true";
+				
+				Connection conn1 = DriverManager.getConnection(dbUrl);
+				if(conn1 != null) {
+					System.out.println("Connected to localHost");
+				}
+				
+				DriverManager.getConnection(DRIVER);
+				conn = DriverManager.getConnection(JDBC_URL);
+				if (conn != null) {
+					System.out.println("Connected to Database!");
+					//Creating the Statement
+					
+				      Statement stmt = conn.createStatement();
+				      //Executing the statement
+				      String createTable = "CREATE TABLE broadcastToNewUsers( "
+				         + "Name VARCHAR(255), "
+				         + "Logo BLOB)";
+				      stmt.execute(createTable);
+				      
+				      //Deleting existing values
+				      String deleteData = "DELETE FROM broadcastToNewUsers";
+				      stmt.execute(deleteData);
+				      //Inserting values
+				      String query = "INSERT INTO broadcastToNewUsers(Name, Logo) VALUES (?, ?)";
+				      PreparedStatement pstmt = conn.prepareStatement(query);
+				      pstmt.setString(1, "currentImagetoSave");
+				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+				      pstmt.setBinaryStream(2, fin);
+				      pstmt.execute();
+				      
+				      System.out.println("Data inserted");
+				      ResultSet rs = stmt.executeQuery("Select *from broadcastToNewUsers");
+				      while(rs.next()) {
+				         System.out.print("Name: "+rs.getString("Name")+", ");
+//				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
+				         System.out.print("Logo: "+rs.getBlob("Logo"));
+				         System.out.println();
+				      }
+				}
+				
+			} catch(SQLException e) {
+//				System.out.println("Connection to Database Failed!");
+				System.out.println(e);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		  public void saveCurrentImage() {
 //			  ThreadedWhiteboardUser thrU = new ThreadedWhiteboardUser(name, color, host, mname)
 			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
@@ -1025,57 +1107,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				}
 		  }
 		
-		public void databaseFuncs() {
-			try {
-//				DriverManager.getConnection(DRIVER);
-				conn = DriverManager.getConnection(JDBC_URL);
-				if (conn != null) {
-					System.out.println("Connected to Database!");
-					//Creating the Statement
-				      Statement stmt = conn.createStatement();
-				      //Executing the statement
-//				      String createTable = "CREATE TABLE Tutorial2( "
-//				         + "Name VARCHAR(255), "
-//				         + "Type VARCHAR(50), "
-//				         + "Logo BLOB)";
-//				      stmt.execute(createTable);
-				      //Inserting values
-				      String query = "INSERT INTO Tutorial2(Name, Type, Logo) VALUES (?, ?, ?)";
-				      PreparedStatement pstmt = conn.prepareStatement(query);
-				      pstmt.setString(1, "JavaFX");
-				      pstmt.setString(2, "Java_library");
-				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-circle-32.png");
-				      pstmt.setBinaryStream(3, fin);
-				      pstmt.execute();
 
-				      pstmt.setString(1, "CoffeeScript");
-				      pstmt.setString(2, "scripting Language");
-				      fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-eraser-32.png");
-				      pstmt.setBinaryStream(3, fin);
-				      pstmt.execute();
-				      pstmt.setString(1, "Cassandra");
-				      pstmt.setString(2, "NoSQL database");
-				      fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-paint-palette-32.png");
-				      pstmt.setBinaryStream(3, fin);
-				      pstmt.execute();
-				      System.out.println("Data inserted");
-				      ResultSet rs = stmt.executeQuery("Select *from Tutorial2");
-				      while(rs.next()) {
-				         System.out.print("Name: "+rs.getString("Name")+", ");
-				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
-				         System.out.print("Logo: "+rs.getBlob("Logo"));
-				         System.out.println();
-				      }
-				}
-				
-			} catch(SQLException e) {
-//				System.out.println("Connection to Database Failed!");
-				System.out.println(e);
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		 
 		  // now we create exposed methods
 		  public void clear() {

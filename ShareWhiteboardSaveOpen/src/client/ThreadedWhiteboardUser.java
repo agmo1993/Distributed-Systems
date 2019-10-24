@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -19,7 +20,10 @@ import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -56,6 +60,7 @@ import javax.swing.JInternalFrame;
 import View.WhiteBoardInterface;
 import remote.Identity;
 import remote.RMICollaborator;
+import server.RMIMediatorImpl;
 
 
 public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.awt.event.MouseListener,java.awt.event.MouseMotionListener{
@@ -153,6 +158,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected static boolean isSaved = false;
 	
 	protected DefaultListModel<String> currentUsers;
+	
+	public static final String DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+	public static final String JDBC_URL = "jdbc:derby:currentImages;create=true";
+	
+	public Connection conn;
 	
 	
 	   
@@ -1046,11 +1056,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      // clear draw area
 		      clear();
 		      loadCurrentImage();
+		      databaseFuncs();
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
 		
 		public void loadCurrentImage() {
+			
+			
+			
 			File fileLoc = new File("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
 			Image imageInput;
 			try {
@@ -1068,6 +1082,65 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			
 			
 		}
+		
+		public void databaseFuncs() {
+			try {
+				
+//				Class.forName(DRIVER).newInstance();
+//	            conn = DriverManager
+//	                    .getConnection(JDBC_URL);
+//	            PreparedStatement statement = conn
+//	                    .prepareStatement("SELECT * from broadcastToNewUsers");
+//
+//	            ResultSet resultSet = statement.executeQuery();
+//	            while (resultSet.next()) {
+//	                String user = resultSet.getString("name");
+//	                String number = resultSet.getString("number");
+//	                System.out.println("User: " + user);
+//	                System.out.println("ID: " + number);
+//	            }
+//				DriverManager.getConnection(DRIVER);
+				
+				conn = DriverManager.getConnection(JDBC_URL);
+				if (conn != null) {
+					System.out.println("Connected to Database!");
+					//Creating the Statement
+					
+				      Statement stmt = conn.createStatement();
+//				      
+////				      //Executing the statement
+//				      String createTable = "CREATE TABLE broadcastToNewUsers( "
+//				         + "Name VARCHAR(255), "
+//				         + "Logo BLOB)";
+//				      stmt.execute(createTable);
+//				      //Inserting values
+//				      String query = "INSERT INTO broadcastToNewUsers(Name, Logo) VALUES (?, ?)";
+//				      PreparedStatement pstmt = conn.prepareStatement(query);
+//				      pstmt.setString(1, "currentImagetoSave");
+//				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+//				      pstmt.setBinaryStream(2, fin);
+//				      pstmt.execute();
+//				      
+//				      System.out.println("Data inserted");
+				      ResultSet rs = stmt.executeQuery("Select *from broadcastToNewUsers");
+				      while(rs.next()) {
+				         System.out.print("Name: "+rs.getString("Name")+", ");
+//				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
+				         System.out.print("Logo: "+rs.getBlob("Logo"));
+				         System.out.println();
+				      }
+				      
+				     boolean getLast = rs.last();
+				}
+				
+			} catch(SQLException e) {
+//				System.out.println("Connection to Database Failed!");
+				System.out.println(e);
+			}
+		}
+		
+//		static Connection con=null;
+	   
 		
 //		public void databaseFuncs() {
 //			try {
