@@ -17,10 +17,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.Vector;
+<<<<<<< Updated upstream
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuBar;
+=======
+
+import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+>>>>>>> Stashed changes
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
@@ -1122,6 +1128,29 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  }    
 		  }
 		  
+<<<<<<< Updated upstream
+=======
+		  public void saveCurrentImage() {
+//			  ThreadedWhiteboardUser thrU = new ThreadedWhiteboardUser(name, color, host, mname)
+			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+				Graphics g = bi.createGraphics();
+				drawArea.paint(g); 
+				g.dispose();
+//				int returnValue = jfc.showSaveDialog(null);
+				ImageIcon imageIcon = new ImageIcon(bi); 
+
+				
+				File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
+				try {
+					ImageIO.write(bi,"png",fileLoc);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		  }
+		  
+>>>>>>> Stashed changes
 		  public void saveAsCanvas() {
 			  
 			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 

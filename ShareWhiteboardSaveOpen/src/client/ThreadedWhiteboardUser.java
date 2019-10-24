@@ -1007,6 +1007,27 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			isNew = false;
 			return true;
 		}
+<<<<<<< Updated upstream
+=======
+		public void loadCurrentImage() {
+			File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
+				Image imageInput;
+				try {
+					imageInput = ImageIO.read(fileLoc);
+					//drawArea.image = imageInput;
+					BufferedImage bi = (BufferedImage) imageInput;
+					Graphics g = bi.createGraphics();
+					clear();
+					g2.drawImage(imageInput,0,0,null);
+					repaint();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}
+>>>>>>> Stashed changes
 
 		protected void paintComponent(Graphics g) {
 		    if (image == null) {

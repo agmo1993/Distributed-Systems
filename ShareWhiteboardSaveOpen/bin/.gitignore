@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /client/
 <<<<<<< Updated upstream
 =======
@@ -5,3 +6,10 @@
 /remote/
 >>>>>>> Stashed changes
 /View/
+=======
+/server/
+/remote/
+/View/
+/client/
+/.DS_Store
+>>>>>>> Stashed changes
