@@ -151,7 +151,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	}
 	public boolean exitCollaborator() throws RemoteException, IOException {
 		System.out.println("Exit the colaborator...");
-		System.exit(0);
+		//System.exit(0);
 		return false;
 	}
 
@@ -190,5 +190,10 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	public boolean notifyUsers(ArrayList<String> clients) throws IOException, RemoteException {
 		System.out.println("Got message of clients");    
 		return true; 
+	}
+	@Override
+	public boolean kickCollaborator() throws RemoteException, IOException{
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -123,6 +123,15 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		}
 		return success;
 	}
+	
+	public boolean kickingCommmand(String name)throws IOException, RemoteException {
+		boolean success = false;
+		if (mediator != null) {
+			success = mediator.kickCommand(name);
+			System.out.println("Sent to mediator exit command");
+		}
+		return success;
+	}
 
 	public boolean broadcast(String tag, Object data)throws IOException, RemoteException {    
 		boolean success = false;    
@@ -172,7 +181,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	}
 	public boolean exitCollaborator() throws RemoteException, IOException {
 		System.out.println("Exit the colaborator...");
-		System.exit(0);
+		//System.exit(0);
 		return false;
 	}
 
@@ -197,5 +206,10 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	public byte[] imageLoad() throws IOException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public boolean kickCollaborator() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

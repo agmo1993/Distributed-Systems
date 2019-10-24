@@ -5,6 +5,7 @@ import java.io.Serializable;
 
 public class Identity implements Serializable {  
 	Hashtable props = new Hashtable();
+	public boolean removed = false;
   public Identity(int id) { 
 	  props.put("idnum", new Integer(id)); 
   }

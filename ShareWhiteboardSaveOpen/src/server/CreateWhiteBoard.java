@@ -8,7 +8,7 @@ import java.util.Properties;
 import remote.RMIMediator;
 
 public class CreateWhiteBoard {
-	
+	  public static boolean exitWhiteBoard = false;
 	  public static void main(String argv[]) {    
 	    try {      
 	    	RMIMediator foo = new RMIMediatorImpl();          	
@@ -24,9 +24,12 @@ public class CreateWhiteBoard {
 			Color col = Color.black; 
 			String username = argv[2];
 		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(username, col, "host","TheMediator"); 
-	    	}    
+		    if(exitWhiteBoard == true) {
+		    	System.exit(0);
+		    }
+	    	}
 	    catch (Exception e) {      
 	    	System.out.println("Caught exception while registering: " + e);
 	    	}  
-	    } 
+	    }
 }

@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException; 
 import java.rmi.Remote; 
 import java.util.Vector;
-public interface RMIMediator extends Remote {  
+public interface RMIMediator extends Remote {
 	public boolean register(Identity i, RMICollaborator c)throws RemoteException;  
 	public Identity newMember(String userRequest) throws RemoteException;  
 	public boolean  remove(Identity i) throws RemoteException;  
@@ -21,4 +21,5 @@ public interface RMIMediator extends Remote {
 	public boolean exitMediator() throws RemoteException, IOException;
 	public byte[] presentImage() throws RemoteException;
 	public boolean broadcastUsers()throws RemoteException, IOException;
+	public boolean kickCommand(String kicked) throws RemoteException, IOException;
 	}

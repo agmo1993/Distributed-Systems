@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -48,6 +49,7 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.JInternalFrame;
 
 import View.WhiteBoardInterface;
@@ -61,7 +63,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	protected Image buffer;
 	protected BufferedImage buffer1;
 	protected CommHelper helper;
-	public Image currentImage;
+	public BufferedImage currentImage;
 	
 	protected JFrame frmSharedWhitboard;
 	protected JMenuBar menuBar;
@@ -254,20 +256,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			public void run() {
 				try {
 					buildUI();
-//					byte[] data = mediator.presentImage();
-//					System.out.println(data);
-//				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
-//				    ImageInputStream imgIn = ImageIO.createImageInputStream(bis);
-////					BufferedImage bImage2;
-//					Image bImage2 = ImageIO.read(new File("/Users/macbook/ShareWhiteboardSaveOpen/src/View/icons8-circle-32.png"));
-//					currentImage = bImage2;
-//					System.out.println("bis: "+bis);
-//					System.out.println("imgIn: "+imgIn);
-//					System.out.println("bImage2: "+bImage2);
-//					System.out.println("currentImage: "+currentImage);
-//					if (currentImage != null) {
-//						drawArea.g2.drawImage(currentImage,0,0,null);
-//					    drawArea.repaint();
 //						frmSharedWhitboard.setVisible(true);
 //					}
 ////				    drawArea.g2.drawImage(currentImage,0,0,null);
@@ -519,6 +507,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btnClear = new JButton("Clear");
 		btnClear.setFont(new Font("Arial Unicode MS", Font.PLAIN, 16));
 		btnClear.addActionListener(actionListener);
+		btnClear.setEnabled(false);
 		
 		btnText = new JButton("");
 		btnText.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-type-32.png")));
@@ -778,6 +767,29 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return success;
 	}
 	
+	public boolean exitCollaborator() throws RemoteException, IOException {
+		System.out.println("Exit by admin...");
+		frmSharedWhitboard.dispose();
+		JFrame frame = new JFrame();
+		JOptionPane.showMessageDialog(frame,
+			    "The admin has exited the program.",
+			    "Admin exit",
+			    JOptionPane.WARNING_MESSAGE);
+		//System.exit(0);
+		return false;
+	}
+	
+	public boolean kickCollaborator() throws RemoteException, IOException{
+		JFrame frame = new JFrame();
+		JOptionPane.showMessageDialog(frame,
+			    "You have been kicked by the collaborator.",
+			    "Kicked!",
+			    JOptionPane.WARNING_MESSAGE);
+		frmSharedWhitboard.dispose();
+		//System.exit(0);
+		return false;
+	}
+	
 	public boolean notifyBI(BufferedImage image) {
 		boolean success = false;
 		success = drawArea.remotePaintBI(image);
@@ -862,6 +874,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  // Mouse coordinates
 		  private int currentX, currentY, oldX, oldY;
 		  public int currentBrushsize;
+		  public boolean firstImage = true;
 		 
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
@@ -883,9 +896,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      public void mousePressed(MouseEvent e) {
 		        // save coord x,y when mouse is pressed
 		        oldX = e.getX();
-		        oldY = e.getY();
-		        
-				
+		        oldY = e.getY();		
 		      }
 		    });
 		    
@@ -1007,10 +1018,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			isNew = false;
 			return true;
 		}
-<<<<<<< Updated upstream
-=======
 		public void loadCurrentImage() {
-			File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
+				File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
 				Image imageInput;
 				try {
 					imageInput = ImageIO.read(fileLoc);
@@ -1027,7 +1036,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				
 				
 			}
->>>>>>> Stashed changes
 
 		protected void paintComponent(Graphics g) {
 		    if (image == null) {
@@ -1038,6 +1046,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		      // clear draw area
 		      clear();
+		      
+		    }
+		    if(firstImage) {
+		    	loadCurrentImage();
+		    	firstImage = false;
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
@@ -1057,7 +1070,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  repaint();
 			  isSaved = false;
 			  isNew = true;
-			  //status.setText("Whiteboard Cleared");
+			  lbl_status.setText("Whiteboard Cleared");
 		  }
 		 
 		  public void setBrushSize() {
@@ -1370,10 +1383,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isSaved = false;
 			      isNew = false;
 			  }
-			  else if (shape.equals("text")){
-				  text();
+			  else if (shape.contentEquals("clear")){
+				  clear();
+			  }
+			  else{
+				  int shapeWidth = Math.abs(xPos - oldX);
 				  g2.setPaint(col);
-			      g2.drawRect(oldX, oldY, xPos, yPos);
+				  Font font = new Font("Serif", Font.PLAIN, shapeWidth);	 
+				  g2.setFont(font);
+			      g2.drawString(shape, oldX, oldY);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
@@ -1383,12 +1401,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  
 		  }
 		  
-		  public boolean exitCollaborator() throws RemoteException, IOException {
-				System.out.println("Exit by admin...");
-				frmSharedWhitboard.dispose();
-				System.exit(0);
-				return false;
-			}
+		  
 
 		  
 		  public void closeCanvas() {

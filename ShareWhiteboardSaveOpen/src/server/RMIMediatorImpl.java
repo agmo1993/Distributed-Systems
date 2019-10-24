@@ -30,13 +30,20 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	Vector idList = new Vector();
 	ArrayList<String> usersArrayList = new ArrayList<String>();
 	byte[] currentImage;
+	public boolean exitWhiteBoard = false;
+	Identity admin;
+	int userOne = 0;
 	public RMIMediatorImpl() throws RemoteException {    
 		super();  }
 	
   public boolean register(Identity i, RMICollaborator c) throws RemoteException {    
 	  System.out.println("Registering member " + i.getId()+ " as " + c.getIdentity().getName());
+	  userOne++;
 	  clients.put(i, c);
 	  usersArrayList.add(c.getIdentity().getName());
+	  if (userOne == 1) {
+		  admin = i;
+	  }
 	  
 	  return true;  
 	  }
@@ -70,16 +77,14 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  return null;
 		  }
 		  else {
+			
+			/*
 			RMICollaborator target = null;  
 			Enumeration ids = clients.keys(); 
 			Identity i = (Identity) ids.nextElement();
 			target = (RMICollaborator) clients.get(i);
-			try {
-			currentImage = target.imageLoad();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			*/
+			System.out.println("Hello");
 		   
 		  }
 	  }
@@ -100,7 +105,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 		  idList.addElement(newId);    
     		}   
 	  
-	  System.out.println("New Member registered");
+	  System.out.println("New Member registered" + newId.getId());
 	  return newId;
 	  
     }
@@ -310,8 +315,60 @@ public boolean broadcastBI(BufferedImage image, Identity from) throws IOExceptio
 	  return success;
 }
 
-@Override
+public boolean kickCommand(String kicked)throws RemoteException, IOException {
+	System.out.println("Kicking a collaborator");
+	Identity toKick = null;
+	boolean success = true;    
+	Enumeration ids;       
+	ids = clients.keys();    
+	RMICollaborator target = null;    
+	while (ids.hasMoreElements()) {
+		Identity i = (Identity)ids.nextElement();
+		target = (RMICollaborator)clients.get(i);
+		String targetCandidate = target.getIdentity().getName();
+		if(targetCandidate.equals(kicked)) {
+			usersArrayList.remove(kicked);
+			i.removed = true;
+			try {
+				if(!target.kickCollaborator()) {
+					success = false;        
+					System.out.println(success);
+						  }
+				} 
+			catch (RemoteException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} 
+			catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			break;
+		}
+	}
+	while (ids.hasMoreElements()) {      
+		  Identity id2 = (Identity)ids.nextElement();
+		  synchronized (clients) {        
+			  target = (RMICollaborator)clients.get(id2);
+			  synchronized (target) {        
+				  if (target == null ||!target.notifyUsers(usersArrayList)) {
+					  success = false;        
+					  System.out.print(success);
+					  }      
+				  }    
+			  }
+	  }
+	return success;
+}
+
+public void close() {
+	System.exit(0);
+}
+		  
+	  
+
 public boolean exitMediator() throws RemoteException, IOException {
+	System.out.println("Shutting down each collaborator");
 	boolean success = true;    
 	  Enumeration ids;    
 	  synchronized (clients) {      
@@ -324,14 +381,17 @@ public boolean exitMediator() throws RemoteException, IOException {
 			  target = (RMICollaborator)clients.get(i);      
 			  }      
 		  synchronized (target) {
+			  if ((!i.equals(admin)) && (!i.removed)) {
 					  if (target == null ||!target.exitCollaborator()) {
 						  success = false;        
 						  System.out.print(success);
 						  }         
+			  }
 		  }
 	  }
 	  System.out.println("Shutting down each collaborator");
-	  System.exit(0);
+	  //exitWhiteBoard = true;
+	  //System.exit(0);
 	  return success;  
 }
 	

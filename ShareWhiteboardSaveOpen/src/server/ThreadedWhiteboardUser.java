@@ -1,58 +1,68 @@
 package server;
 
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Properties;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+//import org.apache.derby.jdbc.EmbeddedDriver;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Vector;
-<<<<<<< Updated upstream
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JMenuBar;
-=======
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
->>>>>>> Stashed changes
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.ImageIcon;
-import javax.imageio.ImageIO;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
-import javax.swing.JInternalFrame;
 
 import View.WhiteBoardInterface;
 import remote.Identity;
@@ -150,10 +160,23 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	Container content;
 	File selectedFile = null;
 	
+	String hostName = "agmosql.database.windows.net"; // update me
+    String dbName = "agmoSQL"; // update me
+    String user = "agmo@agmosql"; // update me
+    String password = "ds2019@@"; // update me
+    String url = String.format("jdbc:sqlserver://%s:1433;database=%s;user=%s;password=%s;encrypt=true;"
+        + "hostNameInCertificate=*.database.windows.net;loginTimeout=30;", hostName, dbName, user, password);
+    Connection connection = null;
+	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
 	
 	protected DefaultListModel<String> currentUsers;
+	
+	public static final String DRIVER = "org.apache.derby.jdbc.EmbeddedDriver";
+	public static final String JDBC_URL = "jdbc:derby:currentImages;create=true";
+	
+	public Connection conn;
 	
     //***********************
     
@@ -161,7 +184,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		 
 		public void actionPerformed(ActionEvent e) {
 	      	if (e.getSource() == btnClear) {
-	      		drawArea.clear();
+	      		try {
+					drawArea.clear();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 	      	} else if (e.getSource() == comboBoxSize) {
 	      		drawArea.setBrushSize();
 	      	} else if (e.getSource() == btnMoreColor) {
@@ -210,6 +241,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	      		drawArea.colorChooser(btnColor9.getBackground());
 	      	} else if (e.getSource() == btnColor10) {
 	      		drawArea.colorChooser(btnColor10.getBackground());
+	      	} else if (e.getSource() == btn_kick) {
+	      		kickUser();
 	      	} 
 	      	
 	    }
@@ -228,6 +261,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			public void run() {
 				try {
 					buildUI();
+					//drawArea.databaseFuncs();
 					frmSharedWhitboard.setVisible(true);
 					broadcastUsers();
 				} catch (Exception e) {
@@ -366,6 +400,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		btn_kick = new JButton("Kick");
 		btn_kick.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-combat-32.png")));
 		btn_kick.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
+		btn_kick.addActionListener(actionListener);
 		
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
@@ -808,11 +843,29 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	public byte[] imageLoad() throws IOException {
 		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    ImageIO.write(bi, "jpg", bos );
+	    ImageIO.write(bi, "png", bos );
 	    byte [] data = bos.toByteArray();
 	    return data;
 	}
 	
+	public void kickUser() {
+		System.out.println("kicking user");
+		if(list_client.getSelectedValue()!=null) {
+			String userSelected = this.list_client.getSelectedValue().toString();
+			System.out.println("User is " + userSelected);
+			try {
+				kickingCommmand(userSelected);
+				lbl_status.setText(userSelected + " has been kicked.");
+				//broadcastUsers();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			}
+	}
 	
 	//***********************
 	
@@ -825,6 +878,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  // Mouse coordinates
 		  private int currentX, currentY, oldX, oldY;
 		  public int currentBrushsize;
+		  MouseEvent currentMouse;
 		 
 		  public DrawArea1() {
 		    setDoubleBuffered(false);
@@ -839,6 +893,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    addMouseMotionListener(new MouseMotionAdapter() {
 		      public void mouseDragged(MouseEvent e) {
 		        // coord x,y when drag mouse
+		    	currentMouse = e;
 		        currentX = e.getX();
 		        currentY = e.getY();
 		        if ((g2 != null) & freeHandState == true){
@@ -944,6 +999,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 							}
 				        	
 				        }
+			    	  saveCurrentImage();
 			      }
 			});
 		  }
@@ -963,13 +1019,88 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      // enable antialiasing
 		      g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		      // clear draw area
-		      clear();
+		      try {
+				clear();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		    }
 		    g.drawImage(image, 0, 0, null);
 		  }
+		
+		public void databaseFuncs() {
+			try {
+				try {
+					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+				} catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+				Connection connection = null;
+
+				// Initialize connection object
+				try
+				{
+					// get connection
+					connection = DriverManager.getConnection(url, user, password);
+				}
+				catch (SQLException e)
+				{
+					throw new SQLException("Failed to create connection to database.", e);
+				}
+				if (connection != null) 
+				{ 
+					System.out.println("Successfully created connection to database.");
+				}
+				
+				DriverManager.getConnection(DRIVER);
+				conn = DriverManager.getConnection(JDBC_URL);
+				if (conn != null) {
+					System.out.println("Connected to Database!");
+					//Creating the Statement
+					
+				      Statement stmt = conn.createStatement();
+				      //Executing the statement
+				      String createTable = "CREATE TABLE broadcastToNewUsers( "
+				         + "Name VARCHAR(255), "
+				         + "Logo BLOB)";
+				      stmt.execute(createTable);
+				      
+				      //Deleting existing values
+				      String deleteData = "DELETE FROM broadcastToNewUsers";
+				      stmt.execute(deleteData);
+				      //Inserting values
+				      String query = "INSERT INTO broadcastToNewUsers(Name, Logo) VALUES (?, ?)";
+				      PreparedStatement pstmt = conn.prepareStatement(query);
+				      pstmt.setString(1, "currentImagetoSave");
+				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+				      pstmt.setBinaryStream(2, fin);
+				      pstmt.execute();
+				      
+				      System.out.println("Data inserted");
+				      ResultSet rs = stmt.executeQuery("Select *from broadcastToNewUsers");
+				      while(rs.next()) {
+				         System.out.print("Name: "+rs.getString("Name")+", ");
+//				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
+				         System.out.print("Logo: "+rs.getBlob("Logo"));
+				         System.out.println();
+				      }
+				}
+				
+			} catch(SQLException e) {
+//				System.out.println("Connection to Database Failed!");
+				System.out.println(e);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		 
 		  // now we create exposed methods
-		  public void clear() {
+		  public void clear() throws RemoteException, IOException {
 			  col = Color.BLACK;
 			  freeHandState = true;
 			  lineState = false;
@@ -983,6 +1114,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  repaint();
 			  isSaved = false;
 			  isNew = true;
+			  broadcastPaint("clear",col,currentMouse,0,0,0);
 			  //status.setText("Whiteboard Cleared");
 		  }
 		 
@@ -1005,6 +1137,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  }
 		  
 		  public void brush() {
+			  
 			  if (col == Color.WHITE){
 				  col = Color.BLACK;
 			  }
@@ -1096,14 +1229,38 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				  if (n == 0) {
 					  saveAsCanvas();
 					  isSaved = true;
-					  clear();
+					  try {
+						clear();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				  } else if(n == 1) {
-					  clear();
+					  try {
+						clear();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					  lbl_status.setText("...New Painting created");
 				  } else {}
 				  
 			  }else {
-				  clear();
+				  try {
+					clear();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				  lbl_status.setText("...New Painting created");
 			  }
 		  }
@@ -1128,8 +1285,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			  }    
 		  }
 		  
-<<<<<<< Updated upstream
-=======
 		  public void saveCurrentImage() {
 //			  ThreadedWhiteboardUser thrU = new ThreadedWhiteboardUser(name, color, host, mname)
 			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
@@ -1139,8 +1294,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 //				int returnValue = jfc.showSaveDialog(null);
 				ImageIcon imageIcon = new ImageIcon(bi); 
 
-				
 				File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
+				
 				try {
 					ImageIO.write(bi,"png",fileLoc);
 				} catch (IOException e) {
@@ -1150,7 +1305,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				
 		  }
 		  
->>>>>>> Stashed changes
 		  public void saveAsCanvas() {
 			  
 			  bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
@@ -1176,7 +1330,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  public void openCanvas() {
 			  if(isNew) {
 				  int returnValue = jfc.showOpenDialog(null);
-				  clear();
+				  try {
+					clear();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 						selectedFile = jfc.getSelectedFile();
 						try {
@@ -1208,7 +1370,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  saveAsCanvas();
 					  isSaved = true;
 					  int returnValue = jfc.showOpenDialog(null);
-					  clear();
+					  try {
+						clear();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 						if (returnValue == JFileChooser.APPROVE_OPTION) {
 							selectedFile = jfc.getSelectedFile();
 							try {
@@ -1227,7 +1397,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  
 				  } else if(n == 1) {
 					  int returnValue = jfc.showOpenDialog(null);
-					  clear();
+					  try {
+						clear();
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 						if (returnValue == JFileChooser.APPROVE_OPTION) {
 							selectedFile = jfc.getSelectedFile();
 							try {
@@ -1248,7 +1426,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				  } else {}
 			  }	else {
 				  int returnValue = jfc.showOpenDialog(null);
-				  clear();
+				  try {
+					clear();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 					if (returnValue == JFileChooser.APPROVE_OPTION) {
 						selectedFile = jfc.getSelectedFile();
 						try {
@@ -1319,14 +1505,28 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			      isSaved = false;
 			      isNew = false;
 			  }
-			  else if (shape.equals("text")){
-				  text();
+			  else if (shape.contentEquals("clear")){
+				  try {
+					clear();
+				} catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			  }
+			  else{
+				  int shapeWidth = Math.abs(xPos - oldX);
 				  g2.setPaint(col);
-			      g2.drawRect(oldX, oldY, xPos, yPos);
+				  Font font = new Font("Serif", Font.PLAIN, shapeWidth);	 
+				  g2.setFont(font);
+			      g2.drawString(shape, oldX, oldY);
 			      repaint();
 			      isSaved = false;
 			      isNew = false;
 			  }
+			  
 			  g2.setStroke(new BasicStroke(currentBrushsize));
 			  return true;
 			  
@@ -1335,6 +1535,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		  public void closeCanvas() {
 			  if(isNew) {
 				  frmSharedWhitboard.dispose();
+				  try {
+					broadcastExit();
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			  }else if(!isSaved) {
 				  Object[] options = {"Save", "Don't Save", "Cancel"};
 				  int n = JOptionPane.showOptionDialog(null,
@@ -1349,21 +1558,26 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  saveAsCanvas();
 					  isSaved = true;
 					  try {
-						broadcastExit();
+						
 						frmSharedWhitboard.dispose();
-						  System.exit(0);
+						broadcastExit();
+						System.exit(0);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				  } else if(n == 1) {
 					  try {
+						  System.out.println("Checking");
+						  frmSharedWhitboard.dispose();
 						  broadcastExit();
-							frmSharedWhitboard.dispose();
-							System.exit(0);
+						  System.exit(0);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
-				  } else {}
+				  } else {
+					  System.out.println("Continue painting!");
+					  
+				  }
 			  }else {
 				  try {
 					  broadcastExit();

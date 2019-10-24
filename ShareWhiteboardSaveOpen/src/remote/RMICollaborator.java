@@ -28,5 +28,6 @@ public boolean notifyUsers(ArrayList<String> clients)throws IOException, RemoteE
 public boolean notifyPaint(String shape, Color col, MouseEvent e, int X, int Y, int brushSize)throws IOException, RemoteException;
 public boolean notifyBI(BufferedImage image)throws IOException, RemoteException;
 public byte[] imageLoad() throws IOException;
-public boolean exitCollaborator() throws RemoteException, IOException;;
+public boolean exitCollaborator() throws RemoteException, IOException;
+public boolean kickCollaborator()throws RemoteException, IOException;
 }
