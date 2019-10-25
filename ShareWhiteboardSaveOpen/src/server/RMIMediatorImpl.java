@@ -38,25 +38,38 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	
   public boolean register(Identity i, RMICollaborator c) throws RemoteException {    
 	  System.out.println("Registering member " + i.getId()+ " as " + c.getIdentity().getName());
-	  userOne++;
-	  clients.put(i, c);
-	  usersArrayList.add(c.getIdentity().getName());
-	  if (userOne == 1) {
-		  admin = i;
-	  }
+		  userOne++;
+		  clients.put(i, c);
+		  usersArrayList.add(c.getIdentity().getName());
+		  if (userOne == 1) {
+			  admin = i;
+		  }
+		  return true;  
+  }
 	  
-	  return true;  
-	  }
-  
+  private boolean userNameDenied(RMICollaborator c) {
+	boolean success = false;  
+	try {
+		success = c.invalidUsername();
+	} catch (RemoteException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return success;
+  }
 
-  
-  
-  
-  public Identity newMember(String userRequest)  {    
+public Identity newMember(String userRequest, RMICollaborator c)  {    
 	  int max = -1;    
 	  boolean found = true;    
 	  Enumeration x;
 	  if (idList.size() > 0) {
+		  if(usersArrayList.contains(userRequest)) {
+			  userNameDenied(c);
+			  return null;
+		  }
 		  Object[] options = {"Yes", "No"};
 		  int n = JOptionPane.showOptionDialog(null,
 		      "Would you like to grant whiteboad access to "+userRequest +" ?",
@@ -70,13 +83,6 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 			  return null;
 		  }
 		  else {
-			
-			/*
-			RMICollaborator target = null;  
-			Enumeration ids = clients.keys(); 
-			Identity i = (Identity) ids.nextElement();
-			target = (RMICollaborator) clients.get(i);
-			*/
 			System.out.println("Hello");
 		   
 		  }

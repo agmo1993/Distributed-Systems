@@ -9,7 +9,7 @@ import java.rmi.Remote;
 import java.util.Vector;
 public interface RMIMediator extends Remote {
 	public boolean register(Identity i, RMICollaborator c)throws RemoteException;  
-	public Identity newMember(String userRequest) throws RemoteException;  
+	public Identity newMember(String userRequest, RMICollaborator c) throws RemoteException;  
 	public boolean  remove(Identity i) throws RemoteException;  
 	public Vector   getMembers() throws RemoteException;
 	public boolean send(Identity to, Identity from, String mtag, String msg)throws IOException, RemoteException;  

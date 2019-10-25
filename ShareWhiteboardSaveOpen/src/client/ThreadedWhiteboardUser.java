@@ -358,7 +358,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		
 		lbl_status = new JLabel("Welcome " + name);
 		lbl_status.setHorizontalAlignment(SwingConstants.CENTER);
-		lbl_status.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
+		lbl_status.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		status_panel.add(lbl_status);
 		
 		//Other panels
@@ -1037,26 +1037,6 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			isNew = false;
 			return true;
 		}
-		  public void loadCurrentByte() {
-			  try {
-					byte[] data = mediator.presentImage();
-					System.out.println(data);
-				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
-					Image bImage2;
-					bImage2 = ImageIO.read(bis);
-					BufferedImage bi = (BufferedImage) bImage2;
-					Graphics g = bi.createGraphics();
-					clear();
-					//currentImage = bImage2;
-					bis.close();
-					g2.drawImage(bImage2,0,0,null);
-				    repaint();
-				} catch (IOException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
-				}
-			  
-		  }
 		  
 		public void loadCurentImageDB() {
 				try {

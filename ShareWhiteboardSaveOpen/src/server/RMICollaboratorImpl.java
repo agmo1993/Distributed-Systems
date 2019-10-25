@@ -56,7 +56,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 				Registry registry = LocateRegistry.getRegistry();
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
-				Identity newId = mediator.newMember(id.getName());
+				Identity newId = mediator.newMember(id.getName(),this);
 				if (newId == null) {
 					JFrame errorFrame = new JFrame();
 					JOptionPane.showMessageDialog(errorFrame,
@@ -211,5 +211,15 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	public boolean kickCollaborator() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public boolean invalidUsername() throws RemoteException, IOException {
+		System.out.println("Username already taken, please close the program and try again.");
+		JFrame frame = new JFrame();
+		JOptionPane.showMessageDialog(frame,
+				"Username already taken, please close the program and try again.",
+			    "Invalid username!",
+			    JOptionPane.WARNING_MESSAGE);
+		return true;
 	}
 }
