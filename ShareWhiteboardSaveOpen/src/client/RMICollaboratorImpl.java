@@ -48,7 +48,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 	public boolean connect(Properties p) throws RemoteException {    
 		boolean success = false;         
 			try {        
-				Registry registry = LocateRegistry.getRegistry(this.port);
+				Registry registry = LocateRegistry.getRegistry(Integer.parseInt(this.port));
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
 				Identity newId = mediator.newMember(id.getName());

@@ -1028,6 +1028,57 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		    g.drawImage(image, 0, 0, null);
 		  }
 		
+		public void cleanDB() {
+					try {
+						Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+					} catch (ClassNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+					
+					Connection connection = null;
+
+					// Initialize connection object
+					try
+					{
+						// get connection
+						connection = DriverManager.getConnection(url, user, password);
+					}
+					catch (SQLException e)
+					{
+						System.out.println(e.getMessage());
+					}
+					if (connection != null) 
+					{ 
+						System.out.println("Successfully created connection to database.");
+					}
+					
+					//DriverManager.getConnection(DRIVER);
+					//conn = DriverManager.getConnection(JDBC_URL);
+					if (connection != null) {
+						System.out.println("Connected to Database!");
+						//Creating the Statement
+						
+					      Statement stmt;
+						try {
+							stmt = connection.createStatement();
+							String deleteData = "DELETE FROM broadcastToNewUsers";
+						    stmt.execute(deleteData);
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					      //Executing the statement
+					      
+					      
+					      //Deleting existing values
+					      
+					      
+					}
+		}
+		
+		
 		public void databaseFuncs() {
 			try {
 				try {
@@ -1586,8 +1637,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  try {
 						
 						frmSharedWhitboard.dispose();
+						cleanDB();
 						broadcastExit();
-						System.exit(0);
+						//System.exit(0);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -1595,20 +1647,22 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					  try {
 						  System.out.println("Checking");
 						  frmSharedWhitboard.dispose();
+						  cleanDB();
 						  broadcastExit();
-						  System.exit(0);
+						  //System.exit(0);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 				  } else {
 					  System.out.println("Continue painting!");
-					  
+					  lbl_status.setText("Continue painting!");
 				  }
 			  }else {
 				  try {
 					  broadcastExit();
 						frmSharedWhitboard.dispose();
-						  System.exit(0);
+						cleanDB();
+						  //System.exit(0);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
