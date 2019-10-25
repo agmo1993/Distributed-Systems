@@ -259,6 +259,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		helper.start();
 	}
 	
+	
+	
 	protected void startUI() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -1529,6 +1531,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					lbl_status.setText("File opened sucessfully");
 			  }
 			  databaseFuncs();
+			  try {
+				mediator.notifyOpen(getIdentity());
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		  }
 		  
 		  public boolean remotePaint(String shape, Color col, MouseEvent e, int X, int Y, int remoteBrushSize) {

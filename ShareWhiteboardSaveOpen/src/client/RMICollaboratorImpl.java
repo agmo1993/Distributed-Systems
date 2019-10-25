@@ -201,4 +201,9 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 			    JOptionPane.WARNING_MESSAGE);
 		return true;
 	}
+	@Override
+	public boolean notifyOpen() throws RemoteException, IOException {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

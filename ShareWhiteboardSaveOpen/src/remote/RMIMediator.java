@@ -22,4 +22,5 @@ public interface RMIMediator extends Remote {
 	public byte[] presentImage() throws RemoteException;
 	public boolean broadcastUsers()throws RemoteException, IOException;
 	public boolean kickCommand(String kicked) throws RemoteException, IOException;
+	public boolean notifyOpen(Identity from) throws RemoteException, IOException;
 	}

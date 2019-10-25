@@ -393,6 +393,31 @@ public byte[] presentImage() throws RemoteException {
 	// TODO Auto-generated method stub
 	return null;
 }
+
+public boolean notifyOpen(Identity from) throws RemoteException, IOException {
+	  boolean success = true;    
+	  Enumeration ids;    
+	  synchronized (clients) {      
+		  ids = clients.keys();    
+		  }    
+	  RMICollaborator target = null;    
+	  while (ids.hasMoreElements()) {      
+		  Identity i = (Identity)ids.nextElement();      
+		  synchronized (clients) {        
+			  target = (RMICollaborator)clients.get(i);      
+			  }      
+		  synchronized (target) {
+			  if (!(target.getIdentity().equals(from))) {
+				  if (target == null ||!target.notifyOpen()) {
+					  success = false;        
+					  System.out.print(success);
+					  }      
+			  }    
+		  }
+	  }
+	  System.out.println("Painting broadcasted successfully");
+	  return success;  
+	  }
 	
 }
 

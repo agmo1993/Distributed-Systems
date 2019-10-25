@@ -258,6 +258,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		helper.start();
 	}
 	
+	public boolean notifyOpen() throws RemoteException, IOException {
+		drawArea.firstImage = true;
+		return false;
+	}
+	
 	public byte[] imageLoad() throws IOException {
 		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
