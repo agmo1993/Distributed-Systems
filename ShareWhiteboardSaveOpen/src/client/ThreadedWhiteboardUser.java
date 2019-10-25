@@ -14,9 +14,16 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Vector;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -141,12 +148,21 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 	public int brushSize = 1;
 	Boolean freeHandState = true, lineState = false, rectState = false, circleState = false, ovalState = false, textState = false;
 	
+	String hostName = "agmosql.database.windows.net";
+    String dbName = "agmoSQL"; 
+    String user = "agmo@agmosql";
+    String password = "ds2019@@";
+    String url = String.format("jdbc:sqlserver://%s:1433;database=%s;user=%s;password=%s;encrypt=true;"
+        + "hostNameInCertificate=*.database.windows.net;loginTimeout=30;", hostName, dbName, user, password);
+    Connection connection = null;
+	
 	BufferedImage biOpen;
 	
 	JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
 	BufferedImage bi;
 	Container content;
 	File selectedFile = null;
+	
 	
 	protected static boolean isNew = true;
 	protected static boolean isSaved = false;
@@ -234,22 +250,23 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		public void windowActivated(WindowEvent e) {}
 	};
 	
-	public ThreadedWhiteboardUser(String name, Color color, String host, String mname) throws RemoteException {
-		super(name, host, mname);
+	public ThreadedWhiteboardUser(String name, Color color, String host, String mname, String port) throws RemoteException {
+		super(name, host, mname, port);
 		getIdentity().setProperty("color", color);
 		startUI();
 		helper = new CommHelper(this);
 		helper.start();
 	}
 	
-//	public byte[] imageLoad() throws IOException {
-//		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//	    ImageIO.write(bi, "png", bos );
-//	    bos.flush();
-//	    byte [] data = bos.toByteArray();
-//	    return data;
-//	}
+	public byte[] imageLoad() throws IOException {
+		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    ImageIO.write(bi, "png", bos );
+	    bos.flush();
+	    byte [] data = bos.toByteArray();
+	    bos.close();
+	    return data;
+	}
 //	
 	protected void startUI() {
 		EventQueue.invokeLater(new Runnable() {
@@ -262,6 +279,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 ////				    drawArea.repaint();
 					broadcastUsers();
 					frmSharedWhitboard.setVisible(true);
+					
 					
 //					else {
 //						System.out.println("Current Image is Null!");
@@ -340,6 +358,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		
 		lbl_status = new JLabel("Welcome " + name);
 		lbl_status.setHorizontalAlignment(SwingConstants.CENTER);
+		lbl_status.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 16));
 		status_panel.add(lbl_status);
 		
 		//Other panels
@@ -1018,6 +1037,65 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 			isNew = false;
 			return true;
 		}
+		  public void loadCurrentByte() {
+			  try {
+					byte[] data = mediator.presentImage();
+					System.out.println(data);
+				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+					Image bImage2;
+					bImage2 = ImageIO.read(bis);
+					BufferedImage bi = (BufferedImage) bImage2;
+					Graphics g = bi.createGraphics();
+					clear();
+					//currentImage = bImage2;
+					bis.close();
+					g2.drawImage(bImage2,0,0,null);
+				    repaint();
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+			  
+		  }
+		  
+		public void loadCurentImageDB() {
+				try {
+					Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+				} 
+				catch (ClassNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+				Connection connection = null;
+				
+				// Initialize connection object
+				try
+				{
+					// get connection
+					connection = DriverManager.getConnection(url, user, password);
+					Statement stmt = connection.createStatement();
+					ResultSet rs = stmt.executeQuery("Select Logo from broadcastToNewUsers;");
+					if (rs.next()) {
+					    Blob remoteImage = rs.getBlob("Logo");
+					    InputStream in = remoteImage.getBinaryStream();  
+					    Image image = ImageIO.read(in);
+						g2.drawImage(image,0,0,null);
+						repaint();
+						System.out.println("Retrieved from database!");
+					}
+				    
+				}
+				catch (SQLException e)
+				{
+					System.out.println(e.getMessage());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+		  
 		public void loadCurrentImage() {
 				File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
 				Image imageInput;
@@ -1027,6 +1105,15 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					BufferedImage bi = (BufferedImage) imageInput;
 					Graphics g = bi.createGraphics();
 					clear();
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ImageIO.write(bi, "png", bos );
+				    bos.flush();
+				    byte [] data = bos.toByteArray();
+				    ByteArrayInputStream bis = new ByteArrayInputStream(data);
+				    bos.close();
+				    imageInput = ImageIO.read(bis);
+				    bis.close();
+				    System.out.println(data);
 					g2.drawImage(imageInput,0,0,null);
 					repaint();
 				} catch (IOException e) {
@@ -1049,7 +1136,9 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		      
 		    }
 		    if(firstImage) {
-		    	loadCurrentImage();
+		    	
+		    	loadCurentImageDB();
+		    	setBrushSize();
 		    	firstImage = false;
 		    }
 		    g.drawImage(image, 0, 0, null);
@@ -1414,12 +1503,11 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				      null,
 				      options,
 				      options[1]);
-				if (n==1) {
+				if (n==0) {
 					try {
 						System.out.println(mediator.remove(getIdentity()));
 						broadcastUsers();
 						frmSharedWhitboard.dispose();
-						System.exit(0);
 					} catch (RemoteException e1) {
 						e1.printStackTrace();
 					} catch (IOException e1) {

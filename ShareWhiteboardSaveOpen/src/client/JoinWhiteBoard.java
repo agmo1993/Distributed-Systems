@@ -8,7 +8,7 @@ public class JoinWhiteBoard {
 		try {      
 			Properties props = new Properties();      
 			Color col = Color.black; 
-		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(argv[2], col, "host","TheMediator");
+		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser(argv[2], col, argv[0],"TheMediator", argv[1]);
 			
 		}
 		catch (Exception e) {      

@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.rmi.RemoteException;
+import java.sql.Blob;
 //import org.apache.derby.jdbc.EmbeddedDriver;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Vector;
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -331,7 +334,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		status_panel.setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY), new EmptyBorder(4, 4, 4, 4)));
 		
 		lbl_status = new JLabel("Welcome " + name);
-		lbl_status.setHorizontalAlignment(SwingConstants.CENTER);
+		lbl_status.setHorizontalAlignment(JLabel.CENTER);
+		lbl_status.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		status_panel.add(lbl_status);
 		
 		//Other panels
@@ -840,13 +844,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 		return true;
 	}
 	
-	public byte[] imageLoad() throws IOException {
-		bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB);
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-	    ImageIO.write(bi, "png", bos );
-	    byte [] data = bos.toByteArray();
-	    return data;
-	}
+	
 	
 	public void kickUser() {
 		System.out.println("kicking user");
@@ -999,7 +997,8 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 							}
 				        	
 				        }
-			    	  saveCurrentImage();
+			    	  //saveCurrentImage();
+			    	  databaseFuncs();
 			      }
 			});
 		  }
@@ -1049,45 +1048,71 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 				}
 				catch (SQLException e)
 				{
-					throw new SQLException("Failed to create connection to database.", e);
+					System.out.println(e.getMessage());
 				}
 				if (connection != null) 
 				{ 
 					System.out.println("Successfully created connection to database.");
 				}
 				
-				DriverManager.getConnection(DRIVER);
-				conn = DriverManager.getConnection(JDBC_URL);
-				if (conn != null) {
+				//DriverManager.getConnection(DRIVER);
+				//conn = DriverManager.getConnection(JDBC_URL);
+				if (connection != null) {
 					System.out.println("Connected to Database!");
 					//Creating the Statement
 					
-				      Statement stmt = conn.createStatement();
+				      Statement stmt = connection.createStatement();
 				      //Executing the statement
-				      String createTable = "CREATE TABLE broadcastToNewUsers( "
-				         + "Name VARCHAR(255), "
-				         + "Logo BLOB)";
-				      stmt.execute(createTable);
+				      
 				      
 				      //Deleting existing values
 				      String deleteData = "DELETE FROM broadcastToNewUsers";
 				      stmt.execute(deleteData);
 				      //Inserting values
 				      String query = "INSERT INTO broadcastToNewUsers(Name, Logo) VALUES (?, ?)";
-				      PreparedStatement pstmt = conn.prepareStatement(query);
+				      PreparedStatement pstmt = connection.prepareStatement(query);
 				      pstmt.setString(1, "currentImagetoSave");
-				      FileInputStream fin = new FileInputStream("/Users/macbook/ShareWhiteboardSaveOpen/src/images/image");
+				      FileInputStream fin = new FileInputStream("G:\\My Drive\\DSAssignment2\\current.png");
+				      File fileLoc = new File("G:\\My Drive\\DSAssignment2\\current.png");
+				      bi = new BufferedImage(drawArea.getSize().width, drawArea.getSize().height, BufferedImage.TYPE_INT_ARGB); 
+				      Graphics g = bi.createGraphics();
+				      drawArea.paint(g); 
+				      g.dispose();
+				      try {
+						  ImageIO.write(bi,"png",fileLoc);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 				      pstmt.setBinaryStream(2, fin);
 				      pstmt.execute();
 				      
 				      System.out.println("Data inserted");
-				      ResultSet rs = stmt.executeQuery("Select *from broadcastToNewUsers");
-				      while(rs.next()) {
+				      try {
+				      ResultSet rs = stmt.executeQuery("Select * from broadcastToNewUsers");
+				      }
+				      catch(Exception e) {
+				    	  System.out.println(e.getMessage());
+				      }
+				      //Blob remoteImage = rs.getBlob("Logo");
+				      //InputStream in = remoteImage.getBinaryStream();  
+				      /*
+				      try {
+						Image image = ImageIO.read(in);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					*/
+				      /*
+				      
+				      
 				         System.out.print("Name: "+rs.getString("Name")+", ");
 //				         System.out.print("Tutorial Type: "+rs.getString("Type")+", ");
 				         System.out.print("Logo: "+rs.getBlob("Logo"));
 				         System.out.println();
 				      }
+				      */
 				}
 				
 			} catch(SQLException e) {
@@ -1452,6 +1477,7 @@ public class ThreadedWhiteboardUser extends RMICollaboratorImpl implements java.
 					}
 					lbl_status.setText("File opened sucessfully");
 			  }
+			  databaseFuncs();
 		  }
 		  
 		  public boolean remotePaint(String shape, Color col, MouseEvent e, int X, int Y, int remoteBrushSize) {

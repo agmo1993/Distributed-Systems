@@ -27,12 +27,14 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 {  
 	protected Identity id = null;  
 	protected RMIMediator mediator = null;
-	public RMICollaboratorImpl(String name, String host, String mname)throws RemoteException {    
+	public String port = null;
+	public RMICollaboratorImpl(String name, String host, String mname, String port)throws RemoteException {    
 			id = new Identity(0);    
 			id.setName(name);    
 			Properties p = new Properties();    
 			p.put("host", host);    
-			p.put("mediatorName", mname);    
+			p.put("mediatorName", mname);   
+			this.port = port;
 			connect(p);  
 	}
 	public RMICollaboratorImpl(String name) throws RemoteException {    
@@ -44,16 +46,9 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		return id; 
 	}
 	public boolean connect(Properties p) throws RemoteException {    
-		boolean success = false;    
-		//String host = p.getProperty("host");    
-		//String mName = p.getProperty("mediatorName");    
-		//if (host != null && mName != null)       
+		boolean success = false;         
 			try {        
-				//String url = "rmi://" + host + "/" + mName;        
-				//System.out.println("looking up " + url);
-								
-				//Registry registry = LocateRegistry.getRegistry("192.168.0.119", 1099);
-				Registry registry = LocateRegistry.getRegistry();
+				Registry registry = LocateRegistry.getRegistry(this.port);
 				mediator = (RMIMediator)registry.lookup("mediator");        
 				System.out.println("Got mediator " + mediator);        
 				Identity newId = mediator.newMember(id.getName());
@@ -159,7 +154,7 @@ public class RMICollaboratorImpl extends UnicastRemoteObject implements RMIColla
 		try {      
 			Properties props = new Properties();      
 			Color col = Color.black; 
-		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("User 1", col, "host","TheMediator");
+		    ThreadedWhiteboardUser tobj = new ThreadedWhiteboardUser("User 1", col, "host","TheMediator", argv[1]);
 			
 		}
 		catch (Exception e) {      

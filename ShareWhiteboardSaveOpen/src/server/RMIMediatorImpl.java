@@ -48,14 +48,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
 	  return true;  
 	  }
   
-  
-  public static enum idlistnow {
-  }
-  
-  
-  public byte[] presentImage() {
-	  return this.currentImage;
-  }
+
   
   
   
@@ -291,29 +284,7 @@ public class RMIMediatorImpl extends UnicastRemoteObject implements RMIMediator 
     	}  
     }
 
-public boolean broadcastBI(BufferedImage image, Identity from) throws IOException {
-	boolean success = true;    
-	  Enumeration ids;    
-	  synchronized (clients) {      
-		  ids = clients.keys();    
-		  }    
-	  RMICollaborator target = null;    
-	  while (ids.hasMoreElements()) {      
-		  Identity i = (Identity)ids.nextElement();      
-		  synchronized (clients) {        
-			  target = (RMICollaborator)clients.get(i);      
-			  }      
-		  synchronized (target) {
-			  if (!(target.getIdentity().equals(from))) {
-				  if (target == null ||!target.notifyBI(image)) {
-					  success = false;        
-					  System.out.print(success);
-					  }      
-			  }    
-		  }
-	  }
-	  return success;
-}
+
 
 public boolean kickCommand(String kicked)throws RemoteException, IOException {
 	System.out.println("Kicking a collaborator");
@@ -332,7 +303,7 @@ public boolean kickCommand(String kicked)throws RemoteException, IOException {
 			try {
 				if(!target.kickCollaborator()) {
 					success = false;        
-					System.out.println(success);
+					System.out.print(success);
 						  }
 				} 
 			catch (RemoteException e) {
@@ -350,11 +321,21 @@ public boolean kickCommand(String kicked)throws RemoteException, IOException {
 		  Identity id2 = (Identity)ids.nextElement();
 		  synchronized (clients) {        
 			  target = (RMICollaborator)clients.get(id2);
-			  synchronized (target) {        
+			  synchronized (target) {
+				  try {
 				  if (target == null ||!target.notifyUsers(usersArrayList)) {
 					  success = false;        
 					  System.out.print(success);
-					  }      
+					  }
+				  }
+				  catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+				  catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				  }    
 			  }
 	  }
@@ -393,6 +374,18 @@ public boolean exitMediator() throws RemoteException, IOException {
 	  //exitWhiteBoard = true;
 	  //System.exit(0);
 	  return success;  
+}
+
+@Override
+public boolean broadcastBI(BufferedImage image, Identity from) throws RemoteException, IOException {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+@Override
+public byte[] presentImage() throws RemoteException {
+	// TODO Auto-generated method stub
+	return null;
 }
 	
 }

@@ -1,6 +1,7 @@
 package server;
 
 import java.awt.Color;
+import java.net.InetAddress;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Properties;
@@ -11,13 +12,16 @@ public class CreateWhiteBoard {
 	  public static boolean exitWhiteBoard = false;
 	  public static void main(String argv[]) {    
 	    try {      
-	    	RMIMediator foo = new RMIMediatorImpl();          	
+	    	String serverIP = "";
+	    	System.setProperty("java.rmi.server.hostname", argv[0]);
+	    	//LocateRegistry.createRegistry(1099);
+	    	
 	    	String name = "TheMediator";      
 	    	System.out.println("Registering RMIMediatorImpl as \""+ name + "\"");      
 	    	RMIMediator mediator = new RMIMediatorImpl();      
 	    	System.out.println("Created mediator, binding...");      
-	    	Registry registry = LocateRegistry.getRegistry();
-	    	registry.bind("mediator", mediator);      
+	    	Registry registry = LocateRegistry.createRegistry(Integer.parseInt(argv[1]));
+	    	registry.rebind("mediator", mediator);      
 	    	System.out.println("Remote mediator ready...");
 	    	
 	    	Properties props = new Properties();      

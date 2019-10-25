@@ -203,6 +203,10 @@ public class WhiteBoardInterface {
 		lblUsers.setFont(new Font("Arial Rounded MT Bold", Font.BOLD, 15));
 		
 		list_client = new JList();
+		
+		JButton btn_kick = new JButton("Kick");
+		btn_kick.setIcon(new ImageIcon(WhiteBoardInterface.class.getResource("/View/icons8-combat-32.png")));
+		btn_kick.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 15));
 		GroupLayout gl_users_panel = new GroupLayout(users_panel);
 		gl_users_panel.setHorizontalGroup(
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
@@ -211,18 +215,25 @@ public class WhiteBoardInterface {
 					.addComponent(lblUsersConected)
 					.addGap(13)
 					.addComponent(lblUsers)
-					.addContainerGap(221, Short.MAX_VALUE))
+					.addPreferredGap(ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+					.addComponent(btn_kick)
+					.addGap(10))
 				.addComponent(list_client, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
 		);
 		gl_users_panel.setVerticalGroup(
 			gl_users_panel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_users_panel.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_users_panel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblUsers)
-						.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 189, Short.MAX_VALUE))
+					.addGroup(gl_users_panel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_users_panel.createSequentialGroup()
+							.addGap(9)
+							.addComponent(btn_kick, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_users_panel.createSequentialGroup()
+							.addContainerGap()
+							.addGroup(gl_users_panel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblUsersConected, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblUsers))))
+					.addGap(10)
+					.addComponent(list_client, GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE))
 		);
 		users_panel.setLayout(gl_users_panel);
 		canvas_panel.setLayout(new BorderLayout(0, 0));
